@@ -1,47 +1,48 @@
 package edu.ucne.antillasaquadexapp.presentation.usuario
 
 import android.content.res.Configuration
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.ui.unit.sp
+import edu.ucne.antillasaquadexapp.R
 import edu.ucne.antillasaquadexapp.ui.theme.AntillasAquaDexAppTheme
 
 @Composable
 fun BienvenidaScreen(
-    viewModel: UsuarioViewModel = hiltViewModel(),
     onContinue: () -> Unit
 ) {
-    val state by viewModel.state.collectAsStateWithLifecycle()
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .clickable { onContinue() }
+    ) {
+        // Imagen de Fondo
+        Image(
+            painter = painterResource(id = R.drawable.img_titulo),
+            contentDescription = null,
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.Crop
+        )
 
-    BienvenidaContent(
-        state = state,
-        onNombreChange = viewModel::onNombreChange,
-        onGuardar = viewModel::guardarUsuario,
-        onContinue = onContinue
-    )
-}
+        // Capa de oscurecimiento suave para legibilidad
+        Surface(
+            modifier = Modifier.fillMaxSize(),
+            color = Color.Black.copy(alpha = 0.3f)
+        ) {}
 
-@Composable
-fun BienvenidaContent(
-    state: UsuarioUiState,
-    onNombreChange: (String) -> Unit,
-    onGuardar: () -> Unit,
-    onContinue: () -> Unit
-) {
-    LaunchedEffect(state.esUsuarioGuardado) {
-        if (state.esUsuarioGuardado) {
-            onContinue()
-        }
-    }
-
-    if (!state.isLoading) {
+        // Contenido Central (Título)
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -50,67 +51,55 @@ fun BienvenidaContent(
             verticalArrangement = Arrangement.Center
         ) {
             Text(
-                text = "Bienvenido a Antillas AquaDex",
-                style = MaterialTheme.typography.headlineLarge,
+                text = "Antillas\nAquaDex",
+                style = MaterialTheme.typography.displayLarge,
                 fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(bottom = 8.dp)
+                color = Color.White,
+                textAlign = TextAlign.Center,
+                lineHeight = 60.sp
             )
-            Text(
-                text = "Tu enciclopedia marina de las antillas",
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.padding(bottom = 32.dp)
-            )
-
-            OutlinedTextField(
-                value = state.nombre,
-                onValueChange = onNombreChange,
-                label = { Text("¿Cómo te llamas?") },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true
-            )
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            Button(
-                onClick = onGuardar,
-                modifier = Modifier.fillMaxWidth(),
-                enabled = state.nombre.isNotBlank()
-            ) {
-                Text("Empezar aventura")
-            }
         }
-    } else {
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            CircularProgressIndicator()
+
+        // Contenido Inferior (Carga e Instrucción)
+        Column(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 80.dp)
+                .width(200.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            LinearProgressIndicator(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(4.dp),
+                color = MaterialTheme.colorScheme.primaryContainer,
+                trackColor = Color.White.copy(alpha = 0.3f)
+            )
+            
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            Text(
+                text = "Toque para continuar",
+                style = MaterialTheme.typography.bodyMedium,
+                color = Color.White.copy(alpha = 0.8f),
+                fontWeight = FontWeight.Medium
+            )
         }
     }
 }
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
-fun BienvenidaPreview() {
+fun TituloScreenPreview() {
     AntillasAquaDexAppTheme {
-        BienvenidaContent(
-            state = UsuarioUiState(nombre = "Steven", isLoading = false),
-            onNombreChange = {},
-            onGuardar = {},
-            onContinue = {}
-        )
+        BienvenidaScreen(onContinue = {})
     }
 }
 
-@Preview(
-    showBackground = true,
-    showSystemUi = true,
-    uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Preview(showBackground = true, showSystemUi = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
-fun BienvenidaDarkPreview() {
+fun TituloScreenDarkPreview() {
     AntillasAquaDexAppTheme {
-        BienvenidaContent(
-            state = UsuarioUiState(nombre = "", isLoading = false),
-            onNombreChange = {},
-            onGuardar = {},
-            onContinue = {}
-        )
+        BienvenidaScreen(onContinue = {})
     }
 }
