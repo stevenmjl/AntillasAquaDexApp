@@ -21,10 +21,14 @@ class EspecieDetailViewModel @Inject constructor(
 
     fun loadEspecie(id: Int) {
         viewModelScope.launch {
-            _state.update { it.copy(isLoading = true) }
+            // Solo mostramos loading si no tenemos ya la especie correcta cargada
+            if (_state.value.especie?.especieId != id) {
+                _state.update { it.copy(isLoading = true, error = null) }
+            }
+            
             when (val result = repository.getEspecieById(id)) {
                 is Resource.Success -> {
-                    _state.update { it.copy(isLoading = false, especie = result.data) }
+                    _state.update { it.copy(isLoading = false, especie = result.data, error = null) }
                 }
                 is Resource.Error -> {
                     _state.update { it.copy(isLoading = false, error = result.message) }
