@@ -10,4 +10,5 @@ interface EspecieRepository {
     fun getFavoritos(): Flow<List<Especie>>
     suspend fun toggleFavorito(especieId: Int)
     suspend fun esFavorito(especieId: Int): Boolean
+    suspend fun sincronizarEspecies(): Flow<Resource<Boolean>>
 }
