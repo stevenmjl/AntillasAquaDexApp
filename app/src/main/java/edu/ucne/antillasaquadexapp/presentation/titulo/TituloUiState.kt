@@ -1,4 +1,4 @@
-package edu.ucne.antillasaquadexapp.presentation.usuario
+package edu.ucne.antillasaquadexapp.presentation.titulo
 
 data class TituloUiState(
     val isLoading: Boolean = false,

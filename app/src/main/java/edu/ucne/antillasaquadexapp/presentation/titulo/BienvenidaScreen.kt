@@ -1,4 +1,4 @@
-package edu.ucne.antillasaquadexapp.presentation.usuario
+package edu.ucne.antillasaquadexapp.presentation.titulo
 
 import android.content.res.Configuration
 import androidx.compose.foundation.Image
@@ -30,6 +30,19 @@ fun BienvenidaScreen(
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
+    BienvenidaContent(
+        state = state,
+        onSincronizar = viewModel::sincronizar,
+        onContinue = onContinue
+    )
+}
+
+@Composable
+fun BienvenidaContent(
+    state: TituloUiState,
+    onSincronizar: () -> Unit,
+    onContinue: () -> Unit
+) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -53,7 +66,8 @@ fun BienvenidaScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(24.dp),
+                .padding(24.dp)
+                .offset(y = (-60).dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
@@ -77,15 +91,18 @@ fun BienvenidaScreen(
         ) {
             if (state.error != null) {
                 Text(
-                    text = state.error!!,
+                    text = state.error,
                     color = MaterialTheme.colorScheme.error,
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.bodySmall,
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
                 Button(
-                    onClick = { viewModel.sincronizar() },
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.errorContainer, contentColor = MaterialTheme.colorScheme.onErrorContainer)
+                    onClick = onSincronizar,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.errorContainer,
+                        contentColor = MaterialTheme.colorScheme.onErrorContainer
+                    )
                 ) {
                     Icon(Icons.Default.Refresh, contentDescription = null)
                     Spacer(Modifier.width(8.dp))
@@ -119,11 +136,38 @@ fun BienvenidaScreen(
     }
 }
 
-@Preview(showBackground = true, showSystemUi = true)
+@Preview(name = "Cargando", showBackground = true, showSystemUi = true)
 @Composable
-fun TituloScreenDescargandoPreview() {
+fun TituloScreenCargandoPreview() {
     AntillasAquaDexAppTheme {
-        // Simulación de pantalla descargando (sería mejor crear un content separado pero por brevedad aquí se muestra la lógica)
-        BienvenidaScreen(onContinue = {})
+        BienvenidaContent(
+            state = TituloUiState(isLoading = true),
+            onSincronizar = {},
+            onContinue = {}
+        )
+    }
+}
+
+@Preview(name = "Completado", showBackground = true, showSystemUi = true)
+@Composable
+fun TituloScreenCompletadoPreview() {
+    AntillasAquaDexAppTheme {
+        BienvenidaContent(
+            state = TituloUiState(isCompletado = true),
+            onSincronizar = {},
+            onContinue = {}
+        )
+    }
+}
+
+@Preview(name = "Error", showBackground = true, showSystemUi = true)
+@Composable
+fun TituloScreenErrorPreview() {
+    AntillasAquaDexAppTheme {
+        BienvenidaContent(
+            state = TituloUiState(error = "Error al sincronizar: timeout"),
+            onSincronizar = {},
+            onContinue = {}
+        )
     }
 }

@@ -1,4 +1,4 @@
-package edu.ucne.antillasaquadexapp.presentation.usuario
+package edu.ucne.antillasaquadexapp.presentation.titulo
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

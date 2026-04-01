@@ -21,7 +21,7 @@ import edu.ucne.antillasaquadexapp.presentation.main.ZonaDetailScreen
 import edu.ucne.antillasaquadexapp.presentation.especies.detail.EspecieDetailScreen
 import edu.ucne.antillasaquadexapp.presentation.especies.list.EspecieListScreen
 import edu.ucne.antillasaquadexapp.presentation.usuario.PerfilScreen
-import edu.ucne.antillasaquadexapp.presentation.usuario.BienvenidaScreen
+import edu.ucne.antillasaquadexapp.presentation.titulo.BienvenidaScreen
 
 @Composable
 fun AquaDexNavHost(
