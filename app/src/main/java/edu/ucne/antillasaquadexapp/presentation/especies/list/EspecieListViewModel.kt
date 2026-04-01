@@ -26,7 +26,11 @@ class EspecieListViewModel @Inject constructor(
 
     fun loadEspecies() {
         viewModelScope.launch {
-            _state.update { it.copy(isLoading = true, error = null) }
+            // No mostramos loading si ya tenemos datos, para evitar parpadeos
+            if (_state.value.especies.isEmpty()) {
+                _state.update { it.copy(isLoading = true, error = null) }
+            }
+
             when (val result = repository.getEspecies()) {
                 is Resource.Success -> {
                     val list = result.data ?: emptyList()
