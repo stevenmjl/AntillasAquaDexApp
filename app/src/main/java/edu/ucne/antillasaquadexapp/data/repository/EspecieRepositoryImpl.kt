@@ -9,9 +9,11 @@ import edu.ucne.antillasaquadexapp.data.remote.EspecieApi
 import edu.ucne.antillasaquadexapp.domain.model.Especie
 import edu.ucne.antillasaquadexapp.domain.repository.EspecieRepository
 import edu.ucne.antillasaquadexapp.util.Resource
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
 
 class EspecieRepositoryImpl @Inject constructor(
@@ -20,49 +22,84 @@ class EspecieRepositoryImpl @Inject constructor(
     private val especieDao: EspecieDao
 ) : EspecieRepository {
 
-    override suspend fun getEspecies(page: Int): Resource<List<Especie>> {
-        return try {
-            val remoteEspecies = api.getEspecies(page)
-            val entities = remoteEspecies.map { it.toDomain().toEntity() }
-            especieDao.upsertAll(entities)
+    override suspend fun sincronizarEspecies(): Flow<Resource<Boolean>> = flow {
+        emit(Resource.Loading())
+        try {
+            var page = 1
+            var hayMasEspecies = true
+            val maxRetries = 3 // Intentos por cada página
             
-            val favoritos = favoritoDao.getAll().first().map { it.especieId }.toSet()
-            val especieList = entities.map { it.toDomain(favoritos.contains(it.especieId)) }
-            Resource.Success(especieList)
+            while (hayMasEspecies) {
+                var attempt = 0
+                var success = false
+                var lastError = ""
+
+                while (attempt < maxRetries && !success) {
+                    try {
+                        val remoteEspecies = api.getEspecies(page)
+                        if (remoteEspecies.isNotEmpty()) {
+                            val entities = remoteEspecies.map { it.toDomain().toEntity() }
+                            especieDao.upsertAll(entities)
+                            page++
+                        } else {
+                            hayMasEspecies = false
+                        }
+                        success = true
+                    } catch (e: Exception) {
+                        attempt++
+                        lastError = e.localizedMessage ?: "Error desconocido"
+                        if (attempt < maxRetries) {
+                            delay(3000) // Esperar 2 segundos antes de reintentar la página
+                        }
+                    }
+                }
+
+                if (!success) {
+                    // Si después de los reintentos falla una página, lanzamos error general
+                    throw Exception("Fallo persistente en página $page: $lastError")
+                }
+            }
+            emit(Resource.Success(true))
         } catch (e: Exception) {
-            val localEntities = especieDao.getAll().first()
-            if (localEntities.isNotEmpty()) {
-                val favorites = favoritoDao.getAll().first().map { it.especieId }.toSet()
-                Resource.Success(localEntities.map { it.toDomain(favorites.contains(it.especieId)) })
-            } else {
+            emit(Resource.Error("Error al sincronizar: ${e.localizedMessage}"))
+        }
+    }
+
+    override suspend fun getEspecies(page: Int): Resource<List<Especie>> {
+        val localEntities = especieDao.getAll().first()
+        return if (localEntities.isNotEmpty()) {
+            val favorites = favoritoDao.getAll().first().map { it.especieId }.toSet()
+            Resource.Success(localEntities.map { it.toDomain(favorites.contains(it.especieId)) })
+        } else {
+            try {
+                val remoteEspecies = api.getEspecies(page)
+                val entities = remoteEspecies.map { it.toDomain().toEntity() }
+                especieDao.upsertAll(entities)
+                val favoritos = favoritoDao.getAll().first().map { it.especieId }.toSet()
+                Resource.Success(entities.map { it.toDomain(favoritos.contains(it.especieId)) })
+            } catch (e: Exception) {
                 Resource.Error("Error de conexión: ${e.localizedMessage}")
             }
         }
     }
 
     override suspend fun getEspecieById(id: Int): Resource<Especie> {
-        return try {
-            val respuesta = api.getEspecieById(id)
-            if (respuesta.isSuccessful && respuesta.body() != null) {
-                val especie = respuesta.body()!!.toDomain()
-                especieDao.upsert(especie.toEntity())
-                val isFav = favoritoDao.isFavorite(id)
-                Resource.Success(especie.copy(esFavorito = isFav))
-            } else {
-                val local = especieDao.getById(id)
-                if (local != null) {
+        val local = especieDao.getById(id)
+        return if (local != null) {
+            val isFav = favoritoDao.isFavorite(id)
+            Resource.Success(local.toDomain(isFav))
+        } else {
+            try {
+                val respuesta = api.getEspecieById(id)
+                if (respuesta.isSuccessful && respuesta.body() != null) {
+                    val especie = respuesta.body()!!.toDomain()
+                    especieDao.upsert(especie.toEntity())
                     val isFav = favoritoDao.isFavorite(id)
-                    Resource.Success(local.toDomain(isFav))
+                    Resource.Success(especie.copy(esFavorito = isFav))
                 } else {
                     Resource.Error("Especie no encontrada")
                 }
-            }
-        } catch (e: Exception) {
-            val local = especieDao.getById(id)
-            if (local != null) {
-                val isFav = favoritoDao.isFavorite(id)
-                Resource.Success(local.toDomain(isFav))
-            } else {
+            } catch (e: Exception) {
                 Resource.Error("Error: ${e.message}")
             }
         }
