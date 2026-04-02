@@ -4,6 +4,7 @@ import android.content.res.Configuration
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
@@ -143,27 +144,20 @@ fun FilterChips(
     selectedType: FiltroTipo,
     onTypeSelected: (FiltroTipo) -> Unit
 ) {
-    Row(
+    LazyRow(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 4.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        contentPadding = PaddingValues(end = 16.dp)
     ) {
-        FilterChip(
-            selected = selectedType == FiltroTipo.TODOS,
-            onClick = { onTypeSelected(FiltroTipo.TODOS) },
-            label = { Text("Todos") }
-        )
-        FilterChip(
-            selected = selectedType == FiltroTipo.ANIMAL,
-            onClick = { onTypeSelected(FiltroTipo.ANIMAL) },
-            label = { Text("Animales") }
-        )
-        FilterChip(
-            selected = selectedType == FiltroTipo.PLANTA,
-            onClick = { onTypeSelected(FiltroTipo.PLANTA) },
-            label = { Text("Plantas") }
-        )
+        items(FiltroTipo.entries) { tipo ->
+            FilterChip(
+                selected = selectedType == tipo,
+                onClick = { onTypeSelected(tipo) },
+                label = { Text(tipo.descripcion) }
+            )
+        }
     }
 }
 
@@ -219,8 +213,8 @@ fun EspecieListPreview() {
         EspecieListContent(
             state = EspecieListUiState(
                 especiesFiltradas = listOf(
-                    Especie(1, "Manatí", "Trichechus manatus", "Animal", true, "", "", "", 500.12, "", "", "", ""),
-                    Especie(2, "Coral Cerebro", "Diploria labyrinthiformis", "Animal", true, "", "", "", 100.10, "", "", "", "")
+                    Especie(1, "Manatí", "Trichechus manatus", "Mamíferos", 300.0, "Vulnerable", "Descripción", "Hábitat", 450.0, "Herbívora", "Reproducción", "Longevidad", "", false),
+                    Especie(2, "Coral Cerebro", "Diploria labyrinthiformis", "Cnidarios", 50.0, "Estable", "Descripción", "Hábitat", 10.0, "Fotosíntesis", "Reproducción", "Longevidad", "", false)
                 )
             ),
             onEspecieClick = {},
