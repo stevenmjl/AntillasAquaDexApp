@@ -73,7 +73,7 @@ fun EspecieDetailContent(
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
             } else if (state.error != null) {
                 Text(
-                    text = state.error!!,
+                    text = state.error,
                     color = MaterialTheme.colorScheme.error,
                     modifier = Modifier.align(Alignment.Center)
                 )
@@ -144,11 +144,12 @@ fun EspecieDetailContent(
                                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
                             ) {
                                 Column(modifier = Modifier.padding(16.dp)) {
+                                    InfoRow(icon = Icons.Default.Straighten, label = "Longitud", value = "${especie.longitudCm} cm")
                                     InfoRow(icon = Icons.Default.Balance, label = "Peso", value = "${especie.pesoKg} kg")
                                     InfoRow(icon = Icons.Default.Restaurant, label = "Dieta", value = especie.dieta)
                                     InfoRow(icon = Icons.Default.Group, label = "Grupo", value = especie.grupo)
                                     InfoRow(icon = Icons.Default.PriorityHigh, label = "Estado", value = especie.estado)
-                                    InfoRow(icon = Icons.Default.ChildCare, label = "Reproducción", value = especie.infoReproduccion)
+                                    InfoRow(icon = Icons.Default.Egg, label = "Reproducción", value = especie.infoReproduccion)
                                     InfoRow(icon = Icons.Default.Timer, label = "Longevidad", value = especie.longevidad)
                                 }
                             }
@@ -213,7 +214,7 @@ fun EspecieDetailPreview() {
             state = EspecieDetailUiState(
                 especie = Especie(
                     1, "Ballena Jorobada", "Megaptera novaeangliae", "Mamíferos",
-                    true, "Preocupación menor", "Gigante marino conocido por sus cantos.","Océanos y mares, especialmente en la Bahía de Samaná.",
+                    1500.0, "Preocupación menor", "Gigante marino conocido por sus cantos.","Océanos y mares, especialmente en la Bahía de Samaná.",
                     30000.00, "Krill y peces pequeños", "Vivíparo (una cría cada 2-3 años)", "80 - 90 años", "", true
                 )
             ),
@@ -235,7 +236,7 @@ fun EspecieDetailDarkPreview() {
             state = EspecieDetailUiState(
                 especie = Especie(
                     1, "Ballena Jorobada", "Megaptera novaeangliae", "Mamíferos",
-                    true, "Preocupación menor", "Gigante marino conocido por sus cantos.","Océanos y mares, especialmente en la Bahía de Samaná.",
+                    1500.0, "Preocupación menor", "Gigante marino conocido por sus cantos.","Océanos y mares, especialmente en la Bahía de Samaná.",
                     30000.00, "Krill y peces pequeños", "Vivíparo (una cría cada 2-3 años)", "80 - 90 años", "", true
                 )
             ),
