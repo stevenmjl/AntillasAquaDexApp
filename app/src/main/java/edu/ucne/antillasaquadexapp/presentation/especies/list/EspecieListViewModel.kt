@@ -10,7 +10,20 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-enum class FiltroTipo { TODOS, ANIMAL, PLANTA }
+enum class FiltroTipo(val descripcion: String) {
+    TODOS("Todos"),
+    MAMIFEROS("Mamíferos"),
+    PECES("Peces"),
+    REPTILES("Reptiles"),
+    AVES("Aves"),
+    CRUSTACEOS("Crustáceos"),
+    MOLUSCOS("Moluscos"),
+    CNIDARIOS("Cnidarios"),
+    EQUINODERMOS("Equinodermos"),
+    PORIFEROS("Poríferos"),
+    PLANTAS("Plantas"),
+    ALGAS("Algas")
+}
 
 @HiltViewModel
 class EspecieListViewModel @Inject constructor(
@@ -70,11 +83,7 @@ class EspecieListViewModel @Inject constructor(
         return list.filter { especie ->
             val coincideBusqueda = especie.nombre.contains(query, ignoreCase = true) || 
                                    especie.nombreCientifico.contains(query, ignoreCase = true)
-            val coincideTipo = when (tipo) {
-                FiltroTipo.TODOS -> true
-                FiltroTipo.ANIMAL -> especie.esAnimal
-                FiltroTipo.PLANTA -> !especie.esAnimal
-            }
+            val coincideTipo = if (tipo == FiltroTipo.TODOS) true else especie.grupo == tipo.descripcion
             coincideBusqueda && coincideTipo
         }
     }
