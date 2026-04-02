@@ -168,8 +168,8 @@ fun FavoritosPreview() {
         FavoritosContent(
             state = FavoritosUiState(
                 favoritos = listOf(
-                    Especie(1, "Manatí", "Trichechus manatus", "Animal", true, "Vulnerable", "Descripción", "Hábitat", 450.0, "Herbívora", "Reproducción", "Longevidad", "", true),
-                    Especie(2, "Delfín", "Delphinus delphis", "Animal", true, "Preocupación menor", "Descripción", "Hábitat", 150.0, "Carnívora", "Reproducción", "Longevidad", "", true)
+                    Especie(1, "Manatí", "Trichechus manatus", "Mamíferos", 300.0, "Vulnerable", "Descripción", "Hábitat", 450.0, "Herbívora", "Reproducción", "Longevidad", "", true),
+                    Especie(2, "Delfín", "Delphinus delphis", "Mamíferos", 250.0, "Preocupación menor", "Descripción", "Hábitat", 150.0, "Carnívora", "Reproducción", "Longevidad", "", true)
                 )
             ),
             onEspecieClick = {},

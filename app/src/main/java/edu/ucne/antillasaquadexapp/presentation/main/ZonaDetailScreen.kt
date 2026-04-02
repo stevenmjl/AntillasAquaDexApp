@@ -277,8 +277,8 @@ fun ZonaDetailPreview() {
             especieState = EspecieListUiState(
                 isLoading = false,
                 especies = listOf(
-                    Especie(1, "Ballena Jorobada", "Megaptera novaeangliae", "Animal", true, "Vulnerable", "Descripción", "Hábitat", 30000.0, "Krill", "Reproducción", "50 años", "", false),
-                    Especie(2, "Manatí", "Trichechus manatus", "Animal", true, "Vulnerable", "Descripción", "Hábitat", 450.0, "Hierba", "Reproducción", "Longevidad", "", false)
+                    Especie(1, "Ballena Jorobada", "Megaptera novaeangliae", "Mamíferos", 1500.0, "Vulnerable", "Descripción", "Hábitat", 30000.0, "Krill", "Reproducción", "50 años", "", false),
+                    Especie(2, "Manatí", "Trichechus manatus", "Mamíferos", 300.0, "Vulnerable", "Descripción", "Hábitat", 450.0, "Hierba", "Reproducción", "Longevidad", "", false)
                 )
             ),
             onNavigateBack = {},
@@ -307,7 +307,7 @@ fun ZonaDetailDarkPreview() {
             especieState = EspecieListUiState(
                 isLoading = false,
                 especies = listOf(
-                    Especie(1, "Ballena Jorobada", "Megaptera novaeangliae", "Animal", true, "Vulnerable", "Descripción", "Hábitat", 30000.0, "Krill", "Reproducción", "50 años", "", false)
+                    Especie(1, "Ballena Jorobada", "Megaptera novaeangliae", "Mamíferos", 1500.0, "Vulnerable", "Descripción", "Hábitat", 30000.0, "Krill", "Reproducción", "50 años", "", false)
                 )
             ),
             onNavigateBack = {},
