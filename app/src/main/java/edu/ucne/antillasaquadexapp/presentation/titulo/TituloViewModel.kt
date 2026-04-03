@@ -20,7 +20,19 @@ class TituloViewModel @Inject constructor(
     val state = _state.asStateFlow()
 
     init {
-        sincronizar()
+        revisarSyncStatus()
+    }
+
+    private fun revisarSyncStatus() {
+        viewModelScope.launch {
+            especieRepository.esSyncCompletada().collect { isCompleted ->
+                if (isCompleted) {
+                    _state.update { it.copy(isLoading = false, isCompletado = true) }
+                } else {
+                    sincronizar()
+                }
+            }
+        }
     }
 
     fun sincronizar() {
@@ -28,10 +40,14 @@ class TituloViewModel @Inject constructor(
             especieRepository.sincronizarEspecies().collect { result ->
                 when (result) {
                     is Resource.Loading -> {
-                        _state.update { it.copy(isLoading = true, error = null) }
+                        _state.update { it.copy(
+                            isLoading = true, 
+                            error = null,
+                            progreso = result.data ?: _state.value.progreso
+                        ) }
                     }
                     is Resource.Success -> {
-                        _state.update { it.copy(isLoading = false, isCompletado = true) }
+                        _state.update { it.copy(isLoading = false, isCompletado = true, progreso = 100) }
                     }
                     is Resource.Error -> {
                         _state.update { it.copy(isLoading = false, error = result.message) }
