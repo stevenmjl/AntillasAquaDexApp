@@ -21,14 +21,44 @@ import edu.ucne.antillasaquadexapp.data.repository.ClimaRepositoryImpl
 import edu.ucne.antillasaquadexapp.domain.repository.EspecieRepository
 import edu.ucne.antillasaquadexapp.domain.repository.UsuarioRepository
 import edu.ucne.antillasaquadexapp.domain.repository.ClimaRepository
+import edu.ucne.antillasaquadexapp.util.PreferencesManager
+import okhttp3.OkHttpClient
+import coil.ImageLoader
+import coil.disk.DiskCache
+import coil.memory.MemoryCache
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
+import java.util.concurrent.TimeUnit
 import javax.inject.Named
 import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
 object AppModule {
+
+    @Provides
+    @Singleton
+    fun provideImageLoader(@ApplicationContext context: Context): ImageLoader = ImageLoader.Builder(context)
+        .memoryCache {
+            MemoryCache.Builder(context)
+                .maxSizePercent(0.25)
+                .build()
+        }
+        .diskCache {
+            DiskCache.Builder()
+                .directory(context.cacheDir.resolve("image_cache"))
+                .maxSizeBytes(100 * 1024 * 1024) // 100MB para imágenes
+                .build()
+        }
+        .build()
+
+    @Provides
+    @Singleton
+    fun provideOkHttpClient(): OkHttpClient = OkHttpClient.Builder()
+        .connectTimeout(60, TimeUnit.SECONDS)
+        .readTimeout(60, TimeUnit.SECONDS)
+        .writeTimeout(60, TimeUnit.SECONDS)
+        .build()
 
     @Provides
     @Singleton
@@ -39,8 +69,9 @@ object AppModule {
     @Provides
     @Singleton
     @Named("EspecieRetrofit")
-    fun provideEspecieRetrofit(moshi: Moshi): Retrofit = Retrofit.Builder()
+    fun provideEspecieRetrofit(moshi: Moshi, okHttpClient: OkHttpClient): Retrofit = Retrofit.Builder()
         .baseUrl("https://especiesmarinasapi.azurewebsites.net/")
+        .client(okHttpClient)
         .addConverterFactory(MoshiConverterFactory.create(moshi))
         .build()
 
@@ -84,8 +115,11 @@ object AppModule {
     fun provideEspecieRepository(
         api: EspecieApi, 
         favoritoDao: FavoritoDao,
-        especieDao: EspecieDao
-    ): EspecieRepository = EspecieRepositoryImpl(api, favoritoDao, especieDao)
+        especieDao: EspecieDao,
+        preferencesManager: PreferencesManager,
+        imageLoader: ImageLoader,
+        @ApplicationContext context: Context
+    ): EspecieRepository = EspecieRepositoryImpl(api, favoritoDao, especieDao, preferencesManager, imageLoader, context)
 
     @Provides
     @Singleton
