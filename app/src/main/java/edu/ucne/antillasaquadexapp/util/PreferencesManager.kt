@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.floatPreferencesKey
+import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
@@ -19,6 +20,7 @@ class PreferencesManager @Inject constructor(
 ) {
     private val IS_INITIAL_SYNC_COMPLETED = booleanPreferencesKey("is_initial_sync_completed")
     private val MUSIC_VOLUME = floatPreferencesKey("music_volume")
+    private val PROFILE_PICTURE_URL = stringPreferencesKey("profile_picture_url")
 
     val isInitialSyncCompleted: Flow<Boolean> = context.dataStore.data
         .map { preferences ->
@@ -30,6 +32,11 @@ class PreferencesManager @Inject constructor(
             preferences[MUSIC_VOLUME] ?: 0.7f
         }
 
+    val profilePictureUrl: Flow<String?> = context.dataStore.data
+        .map { preferences ->
+            preferences[PROFILE_PICTURE_URL]
+        }
+
     suspend fun setInitialSyncCompleted(completed: Boolean) {
         context.dataStore.edit { preferences ->
             preferences[IS_INITIAL_SYNC_COMPLETED] = completed
@@ -39,6 +46,12 @@ class PreferencesManager @Inject constructor(
     suspend fun setMusicVolume(volume: Float) {
         context.dataStore.edit { preferences ->
             preferences[MUSIC_VOLUME] = volume
+        }
+    }
+
+    suspend fun setProfilePictureUrl(url: String) {
+        context.dataStore.edit { preferences ->
+            preferences[PROFILE_PICTURE_URL] = url
         }
     }
 }
