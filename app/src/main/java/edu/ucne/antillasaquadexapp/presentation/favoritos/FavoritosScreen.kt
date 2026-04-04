@@ -8,6 +8,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -22,11 +23,13 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import edu.ucne.antillasaquadexapp.domain.model.Especie
 import edu.ucne.antillasaquadexapp.presentation.components.ConfirmaBorrarDialog
+import edu.ucne.antillasaquadexapp.presentation.usuario.UsuarioViewModel
 import edu.ucne.antillasaquadexapp.ui.theme.AntillasAquaDexAppTheme
 
 @Composable
 fun FavoritosScreen(
     viewModel: FavoritosViewModel = hiltViewModel(),
+    usuarioViewModel: UsuarioViewModel = hiltViewModel(),
     onEspecieClick: (Int) -> Unit
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -34,7 +37,8 @@ fun FavoritosScreen(
     FavoritosContent(
         state = state,
         onEspecieClick = onEspecieClick,
-        onRemoveFavorite = viewModel::removeFavorite
+        onRemoveFavorite = viewModel::removeFavorite,
+        onSetProfilePicture = usuarioViewModel::setProfilePicture
     )
 }
 
@@ -43,9 +47,11 @@ fun FavoritosScreen(
 fun FavoritosContent(
     state: FavoritosUiState,
     onEspecieClick: (Int) -> Unit,
-    onRemoveFavorite: (Int) -> Unit
+    onRemoveFavorite: (Int) -> Unit,
+    onSetProfilePicture: (String) -> Unit
 ) {
     var especieABorrar by remember { mutableStateOf<Especie?>(null) }
+    var especieParaPerfil by remember { mutableStateOf<Especie?>(null) }
 
     if (especieABorrar != null) {
         ConfirmaBorrarDialog(
@@ -56,6 +62,27 @@ fun FavoritosContent(
             },
             onDismiss = {
                 especieABorrar = null
+            }
+        )
+    }
+
+    if (especieParaPerfil != null) {
+        AlertDialog(
+            onDismissRequest = { especieParaPerfil = null },
+            title = { Text("Foto de perfil") },
+            text = { Text("¿Quieres usar a ${especieParaPerfil?.nombre} como tu foto de perfil?") },
+            confirmButton = {
+                TextButton(onClick = {
+                    especieParaPerfil?.imagenUrl?.let { onSetProfilePicture(it) }
+                    especieParaPerfil = null
+                }) {
+                    Text("Claro")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { especieParaPerfil = null }) {
+                    Text("No")
+                }
             }
         )
     }
@@ -103,7 +130,8 @@ fun FavoritosContent(
                         FavoriteItem(
                             especie = especie,
                             onClick = { onEspecieClick(especie.especieId) },
-                            onRemove = { especieABorrar = especie }
+                            onRemove = { especieABorrar = especie },
+                            onSetProfile = { especieParaPerfil = especie }
                         )
                     }
                 }
@@ -116,7 +144,8 @@ fun FavoritosContent(
 fun FavoriteItem(
     especie: Especie,
     onClick: () -> Unit,
-    onRemove: () -> Unit
+    onRemove: () -> Unit,
+    onSetProfile: () -> Unit
 ) {
     Card(
         modifier = Modifier
@@ -150,6 +179,13 @@ fun FavoriteItem(
                     style = MaterialTheme.typography.bodySmall
                 )
             }
+            IconButton(onClick = onSetProfile) {
+                Icon(
+                    imageVector = Icons.Default.Person,
+                    contentDescription = "Usar como perfil",
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            }
             IconButton(onClick = onRemove) {
                 Icon(
                     imageVector = Icons.Default.Delete,
@@ -173,7 +209,8 @@ fun FavoritosPreview() {
                 )
             ),
             onEspecieClick = {},
-            onRemoveFavorite = {}
+            onRemoveFavorite = {},
+            onSetProfilePicture = {}
         )
     }
 }
@@ -185,7 +222,8 @@ fun FavoritosDarkPreview() {
         FavoritosContent(
             state = FavoritosUiState(favoritos = emptyList()),
             onEspecieClick = {},
-            onRemoveFavorite = {}
+            onRemoveFavorite = {},
+            onSetProfilePicture = {}
         )
     }
 }
