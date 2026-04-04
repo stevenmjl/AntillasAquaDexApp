@@ -5,5 +5,6 @@ data class UsuarioUiState(
     val esUsuarioGuardado: Boolean = false,
     val isLoading: Boolean = true,
     val volumen: Float = 0.7f,
-    val isEditingName: Boolean = false
+    val isEditingName: Boolean = false,
+    val profilePictureUrl: String? = null
 )

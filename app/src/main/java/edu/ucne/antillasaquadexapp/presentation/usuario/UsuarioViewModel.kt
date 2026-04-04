@@ -37,6 +37,12 @@ class UsuarioViewModel @Inject constructor(
                 _state.update { it.copy(volumen = volume) }
             }
         }
+
+        viewModelScope.launch {
+            preferencesManager.profilePictureUrl.collectLatest { url ->
+                _state.update { it.copy(profilePictureUrl = url) }
+            }
+        }
     }
 
     fun onNombreChange(nuevoNombre: String) {
@@ -50,6 +56,12 @@ class UsuarioViewModel @Inject constructor(
     fun onVolumenChange(nuevoVolumen: Float) {
         viewModelScope.launch {
             preferencesManager.setMusicVolume(nuevoVolumen)
+        }
+    }
+
+    fun setProfilePicture(url: String) {
+        viewModelScope.launch {
+            preferencesManager.setProfilePictureUrl(url)
         }
     }
 
