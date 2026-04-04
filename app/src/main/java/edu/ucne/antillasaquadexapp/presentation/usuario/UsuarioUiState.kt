@@ -4,5 +4,6 @@ data class UsuarioUiState(
     val nombre: String = "",
     val esUsuarioGuardado: Boolean = false,
     val isLoading: Boolean = true,
-    val volumen: Float = 0.7f
+    val volumen: Float = 0.7f,
+    val isEditingName: Boolean = false
 )

@@ -43,6 +43,10 @@ class UsuarioViewModel @Inject constructor(
         _state.update { it.copy(nombre = nuevoNombre) }
     }
 
+    fun toggleEditingName() {
+        _state.update { it.copy(isEditingName = !it.isEditingName) }
+    }
+
     fun onVolumenChange(nuevoVolumen: Float) {
         viewModelScope.launch {
             preferencesManager.setMusicVolume(nuevoVolumen)
@@ -53,6 +57,7 @@ class UsuarioViewModel @Inject constructor(
         viewModelScope.launch {
             if (_state.value.nombre.isNotBlank()) {
                 usuarioRepository.saveUsuario(_state.value.nombre)
+                _state.update { it.copy(isEditingName = false) }
             }
         }
     }
