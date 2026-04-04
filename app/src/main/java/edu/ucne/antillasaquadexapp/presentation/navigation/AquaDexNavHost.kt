@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
@@ -12,6 +13,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.toRoute
+import edu.ucne.antillasaquadexapp.R
 import edu.ucne.antillasaquadexapp.presentation.components.BottomBarTab
 import edu.ucne.antillasaquadexapp.presentation.components.BottomNavigationBar
 import edu.ucne.antillasaquadexapp.presentation.favoritos.FavoritosScreen
@@ -22,13 +24,31 @@ import edu.ucne.antillasaquadexapp.presentation.especies.detail.EspecieDetailScr
 import edu.ucne.antillasaquadexapp.presentation.especies.list.EspecieListScreen
 import edu.ucne.antillasaquadexapp.presentation.usuario.PerfilScreen
 import edu.ucne.antillasaquadexapp.presentation.titulo.BienvenidaScreen
+import edu.ucne.antillasaquadexapp.util.AudioManager
 
 @Composable
 fun AquaDexNavHost(
-    navController: NavHostController
+    navController: NavHostController,
+    audioManager: AudioManager
 ) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
+
+    LaunchedEffect(currentRoute) {
+        when {
+            // Si entramos a una zona específica, suena su música
+            currentRoute?.contains("ZonaDetalle") == true -> {
+                val args = navBackStackEntry?.toRoute<Screen.ZonaDetalle>()
+                args?.let { audioManager.playMusic(it.musicaResId) }
+            }
+            // Si entramos a Favoritos, Perfil o Bienvenida, suena la música principal
+            currentRoute?.contains("Favoritos") == true ||
+            currentRoute?.contains("Perfil") == true ||
+            currentRoute?.contains("Bienvenida") == true -> {
+                audioManager.playMusic(R.raw.musica_principal)
+            }
+        }
+    }
 
     val mostrarBottomBar = currentRoute != null && !currentRoute.contains("Bienvenida")
 
@@ -95,7 +115,8 @@ fun AquaDexNavHost(
                                     zonaNombre = zona.nombre,
                                     latitud = zona.latitud,
                                     longitud = zona.longitud,
-                                    especieIds = zona.especieIds
+                                    especieIds = zona.especieIds,
+                                    musicaResId = zona.musicaResId
                                 )
                             )
                         }
