@@ -4,6 +4,7 @@ import edu.ucne.antillasaquadexapp.R
 
 data class Pais(
     val nombre: String,
+    val imagenResId: Int,
     val zonas: List<Zona>
 )
 
@@ -20,6 +21,7 @@ data class Zona(
 val Paises = listOf(
     Pais(
         nombre = "República Dominicana",
+        imagenResId = R.drawable.img_repdom,
         zonas = listOf(
             Zona(
                 nombre = "Santuario de Ballenas, Bahía de Samaná",
@@ -43,6 +45,7 @@ val Paises = listOf(
     ),
     Pais(
         nombre = "Cuba",
+        imagenResId = R.drawable.img_cuba,
         zonas = listOf(
             Zona(
                 nombre = "Parque Nacional Marino Jardines de la Reina",
@@ -66,6 +69,7 @@ val Paises = listOf(
     ),
     Pais(
         nombre = "Puerto Rico",
+        imagenResId = R.drawable.img_puertorico,
         zonas = listOf(
             Zona(
                 nombre = "Reserva Natural Isla de Mona",
@@ -89,6 +93,7 @@ val Paises = listOf(
     ),
     Pais(
         nombre = "Jamaica",
+        imagenResId = R.drawable.img_jamaica,
         zonas = listOf(
             Zona(
                 nombre = "Montego Bay Marine Park",
