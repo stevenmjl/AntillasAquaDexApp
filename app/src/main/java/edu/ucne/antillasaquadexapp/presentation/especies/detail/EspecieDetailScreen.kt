@@ -60,6 +60,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import edu.ucne.antillasaquadexapp.domain.model.Especie
 import edu.ucne.antillasaquadexapp.ui.theme.AntillasAquaDexAppTheme
+import java.text.DecimalFormat
+import java.text.DecimalFormatSymbols
+import java.util.Locale
 
 @Composable
 fun EspecieDetailScreen(
@@ -179,8 +182,20 @@ fun EspecieDetailContent(
                                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
                             ) {
                                 Column(modifier = Modifier.padding(16.dp)) {
-                                    InfoRow(icon = Icons.Default.Straighten, label = "Longitud", value = "${especie.longitudCm} cm")
-                                    InfoRow(icon = Icons.Default.Balance, label = "Peso", value = "${especie.pesoKg} kg")
+                                    val longitudTexto = if (especie.longitudCm >= 100) {
+                                        "${(especie.longitudCm / 100).format()} metros"
+                                    } else {
+                                        "${especie.longitudCm.format()} cm"
+                                    }
+
+                                    val pesoTexto = if (especie.pesoKg < 1) {
+                                        "${(especie.pesoKg * 1000).format()} gramos"
+                                    } else {
+                                        "${especie.pesoKg.format()} kg"
+                                    }
+
+                                    InfoRow(icon = Icons.Default.Straighten, label = "Longitud", value = longitudTexto)
+                                    InfoRow(icon = Icons.Default.Balance, label = "Peso", value = pesoTexto)
                                     InfoRow(icon = Icons.Default.Restaurant, label = "Dieta", value = especie.dieta)
                                     InfoRow(icon = Icons.Default.Group, label = "Grupo", value = especie.grupo)
                                     InfoRow(icon = Icons.Default.PriorityHigh, label = "Estado", value = especie.estado)
@@ -304,4 +319,13 @@ fun EspecieDetailDarkPreview() {
             onToggleFavorito = {}
         )
     }
+}
+
+private fun Double.format(): String {
+    val symbols = DecimalFormatSymbols(Locale.US).apply {
+        groupingSeparator = ','
+        decimalSeparator = '.'
+    }
+    val formatter = DecimalFormat("#,###.##", symbols)
+    return formatter.format(this)
 }
