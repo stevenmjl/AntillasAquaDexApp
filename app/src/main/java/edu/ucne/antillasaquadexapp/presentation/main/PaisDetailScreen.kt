@@ -1,22 +1,25 @@
 package edu.ucne.antillasaquadexapp.presentation.main
 
 import android.content.res.Configuration
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
 import edu.ucne.antillasaquadexapp.domain.model.Paises
 import edu.ucne.antillasaquadexapp.domain.model.Zona
 import edu.ucne.antillasaquadexapp.ui.theme.AntillasAquaDexAppTheme
@@ -32,8 +35,8 @@ fun PaisDetailScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text(nombrePais) },
+            CenterAlignedTopAppBar(
+                title = { Text(nombrePais, fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Atrás")
@@ -43,15 +46,19 @@ fun PaisDetailScreen(
         }
     ) { padding ->
         if (pais != null) {
-            LazyColumn(
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(1),
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(padding)
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+                    .padding(padding),
+                contentPadding = PaddingValues(0.dp)
             ) {
                 items(pais.zonas) { zona ->
-                    ZonaCard(zona = zona, onClick = { onZoneClick(zona) })
+                    ZonaCard(
+                        zona = zona,
+                        modifier = Modifier.fillMaxHeight(0.5f),
+                        onClick = { onZoneClick(zona) }
+                    )
                 }
             }
         }
@@ -59,41 +66,39 @@ fun PaisDetailScreen(
 }
 
 @Composable
-fun ZonaCard(zona: Zona, onClick: () -> Unit) {
-    Card(
-        modifier = Modifier
+fun ZonaCard(
+    zona: Zona,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
+) {
+    Box(
+        modifier = modifier
             .fillMaxWidth()
-            .clickable { onClick() },
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+            .height(350.dp)
+            .clickable { onClick() }
     ) {
-        Row(
+        Image(
+            painter = painterResource(id = zona.imagenResId),
+            contentDescription = zona.nombre,
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.Crop
+        )
+
+        Surface(
+            modifier = Modifier.fillMaxSize(),
+            color = Color.Black.copy(alpha = 0.3f)
+        ) {}
+
+        Text(
+            text = zona.nombre.uppercase(),
+            style = MaterialTheme.typography.headlineMedium,
+            fontWeight = FontWeight.ExtraBold,
+            color = Color.White,
+            textAlign = TextAlign.Center,
             modifier = Modifier
-                .padding(12.dp)
-                .fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            AsyncImage(
-                model = zona.imagenUrl,
-                contentDescription = zona.nombre,
-                modifier = Modifier
-                    .size(80.dp)
-                    .clip(MaterialTheme.shapes.medium),
-                contentScale = ContentScale.Crop
-            )
-            Spacer(modifier = Modifier.width(16.dp))
-            Column {
-                Text(
-                    text = zona.nombre,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
-                )
-                Text(
-                    text = zona.descripcion,
-                    style = MaterialTheme.typography.bodySmall,
-                    maxLines = 2
-                )
-            }
-        }
+                .align(Alignment.Center)
+                .padding(16.dp)
+        )
     }
 }
 
