@@ -8,6 +8,7 @@ import edu.ucne.antillasaquadexapp.data.mappers.toEntity
 import edu.ucne.antillasaquadexapp.data.remote.EspecieApi
 import edu.ucne.antillasaquadexapp.domain.model.Especie
 import edu.ucne.antillasaquadexapp.domain.repository.EspecieRepository
+import edu.ucne.antillasaquadexapp.domain.repository.ToggleResultado
 import edu.ucne.antillasaquadexapp.util.PreferencesManager
 import edu.ucne.antillasaquadexapp.util.Resource
 import android.content.Context
@@ -111,14 +112,23 @@ class EspecieRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun toggleFavorito(especieId: Int) {
-        if (favoritoDao.isFavorite(especieId)) {
+    override suspend fun toggleFavorito(especieId: Int): ToggleResultado {
+        return if (favoritoDao.isFavorite(especieId)) {
             favoritoDao.delete(FavoritoEntity(especieId))
+            ToggleResultado.Removido
         } else {
-            if (favoritoDao.getCount() < 20) {
+            val count = favoritoDao.getCount()
+            if (count < 20) {
                 favoritoDao.insert(FavoritoEntity(especieId))
+                ToggleResultado.Agregado(count + 1)
+            } else {
+                ToggleResultado.LimiteAlcanzado
             }
         }
+    }
+
+    override suspend fun getFavoritosCount(): Int {
+        return favoritoDao.getCount()
     }
 
     override suspend fun esFavorito(especieId: Int): Boolean {
