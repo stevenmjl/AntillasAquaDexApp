@@ -7,7 +7,7 @@ data class EspecieDto(
     @Json(name = "nombre") val nombre: String,
     @Json(name = "nombreCientifico") val nombreCientifico: String?,
     @Json(name = "grupo") val grupo: String,
-    @Json(name = "esAnimal") val esAnimal: Boolean,
+    @Json(name = "longitudCm") val longitudCm: Double?,
     @Json(name = "estado") val estado: String?,
     @Json(name = "descripcion") val descripcion: String?,
     @Json(name = "habitat") val habitat: String?,

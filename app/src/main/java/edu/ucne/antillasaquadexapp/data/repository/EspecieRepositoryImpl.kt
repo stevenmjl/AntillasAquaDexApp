@@ -8,63 +8,96 @@ import edu.ucne.antillasaquadexapp.data.mappers.toEntity
 import edu.ucne.antillasaquadexapp.data.remote.EspecieApi
 import edu.ucne.antillasaquadexapp.domain.model.Especie
 import edu.ucne.antillasaquadexapp.domain.repository.EspecieRepository
+import edu.ucne.antillasaquadexapp.domain.repository.ToggleResultado
+import edu.ucne.antillasaquadexapp.util.PreferencesManager
 import edu.ucne.antillasaquadexapp.util.Resource
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.first
+import android.content.Context
+import coil.ImageLoader
+import coil.request.ImageRequest
+import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.*
 import javax.inject.Inject
 
 class EspecieRepositoryImpl @Inject constructor(
     private val api: EspecieApi,
     private val favoritoDao: FavoritoDao,
-    private val especieDao: EspecieDao
+    private val especieDao: EspecieDao,
+    private val preferencesManager: PreferencesManager,
+    private val imageLoader: ImageLoader,
+    @ApplicationContext private val context: Context
 ) : EspecieRepository {
 
-    override suspend fun getEspecies(page: Int): Resource<List<Especie>> {
-        return try {
-            val remoteEspecies = api.getEspecies(page)
-            val entities = remoteEspecies.map { it.toDomain().toEntity() }
-            especieDao.upsertAll(entities)
+    override fun esSyncCompletada(): Flow<Boolean> = preferencesManager.isInitialSyncCompleted
+
+    override suspend fun sincronizarEspecies(): Flow<Resource<Int>> = flow {
+        emit(Resource.Loading(0))
+        try {
+            var page = 1
+            var hayMasEspecies = true
+            val maxRetries = 10
+            val totalPaginas = 4 
             
-            val favoritos = favoritoDao.getAll().first().map { it.especieId }.toSet()
-            val especieList = entities.map { it.toDomain(favoritos.contains(it.especieId)) }
-            Resource.Success(especieList)
-        } catch (e: Exception) {
-            val localEntities = especieDao.getAll().first()
-            if (localEntities.isNotEmpty()) {
-                val favorites = favoritoDao.getAll().first().map { it.especieId }.toSet()
-                Resource.Success(localEntities.map { it.toDomain(favorites.contains(it.especieId)) })
-            } else {
-                Resource.Error("Error de conexión: ${e.localizedMessage}")
+            while (hayMasEspecies && page <= totalPaginas) {
+                var attempt = 0
+                var success = false
+                var lastError = ""
+
+                while (attempt < maxRetries && !success) {
+                    try {
+                        val remoteEspecies = api.getEspecies(page)
+                        if (remoteEspecies.isNotEmpty()) {
+                            val entities = remoteEspecies.map { it.toDomain().toEntity() }
+                            especieDao.upsertAll(entities)
+                            
+                            // Precarga de imágenes
+                            remoteEspecies.forEach { dto ->
+                                val request = ImageRequest.Builder(context)
+                                    .data(dto.imagenUrl ?: "")
+                                    .build()
+                                imageLoader.enqueue(request)
+                            }
+
+                            val progreso = (page * 100) / totalPaginas
+                            emit(Resource.Loading(progreso))
+                            page++
+                        } else {
+                            hayMasEspecies = false
+                        }
+                        success = true
+                    } catch (e: Exception) {
+                        attempt++
+                        lastError = e.localizedMessage ?: "Error desconocido"
+                        if (attempt < maxRetries) {
+                            delay(5000) // Esperar 5 segundos entre reintentos para dar tiempo a Azure
+                        }
+                    }
+                }
+
+                if (!success) {
+                    throw Exception("Fallo persistente en página $page: $lastError")
+                }
             }
+            preferencesManager.setInitialSyncCompleted(true)
+            emit(Resource.Success(100))
+        } catch (e: Exception) {
+            emit(Resource.Error("Error al sincronizar: ${e.localizedMessage}"))
         }
     }
 
+    override suspend fun getEspecies(page: Int): Resource<List<Especie>> {
+        val localEntities = especieDao.getAll().first()
+        val favorites = favoritoDao.getAll().first().map { it.especieId }.toSet()
+        return Resource.Success(localEntities.map { it.toDomain(favorites.contains(it.especieId)) })
+    }
+
     override suspend fun getEspecieById(id: Int): Resource<Especie> {
-        return try {
-            val respuesta = api.getEspecieById(id)
-            if (respuesta.isSuccessful && respuesta.body() != null) {
-                val especie = respuesta.body()!!.toDomain()
-                especieDao.upsert(especie.toEntity())
-                val isFav = favoritoDao.isFavorite(id)
-                Resource.Success(especie.copy(esFavorito = isFav))
-            } else {
-                val local = especieDao.getById(id)
-                if (local != null) {
-                    val isFav = favoritoDao.isFavorite(id)
-                    Resource.Success(local.toDomain(isFav))
-                } else {
-                    Resource.Error("Especie no encontrada")
-                }
-            }
-        } catch (e: Exception) {
-            val local = especieDao.getById(id)
-            if (local != null) {
-                val isFav = favoritoDao.isFavorite(id)
-                Resource.Success(local.toDomain(isFav))
-            } else {
-                Resource.Error("Error: ${e.message}")
-            }
+        val local = especieDao.getById(id)
+        return if (local != null) {
+            val isFav = favoritoDao.isFavorite(id)
+            Resource.Success(local.toDomain(isFav))
+        } else {
+            Resource.Error("Especie no encontrada localmente")
         }
     }
 
@@ -79,14 +112,23 @@ class EspecieRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun toggleFavorito(especieId: Int) {
-        if (favoritoDao.isFavorite(especieId)) {
+    override suspend fun toggleFavorito(especieId: Int): ToggleResultado {
+        return if (favoritoDao.isFavorite(especieId)) {
             favoritoDao.delete(FavoritoEntity(especieId))
+            ToggleResultado.Removido
         } else {
-            if (favoritoDao.getCount() < 20) {
+            val count = favoritoDao.getCount()
+            if (count < 20) {
                 favoritoDao.insert(FavoritoEntity(especieId))
+                ToggleResultado.Agregado(count + 1)
+            } else {
+                ToggleResultado.LimiteAlcanzado
             }
         }
+    }
+
+    override suspend fun getFavoritosCount(): Int {
+        return favoritoDao.getCount()
     }
 
     override suspend fun esFavorito(especieId: Int): Boolean {

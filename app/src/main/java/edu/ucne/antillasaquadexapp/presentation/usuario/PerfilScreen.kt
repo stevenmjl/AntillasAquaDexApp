@@ -2,20 +2,31 @@ package edu.ucne.antillasaquadexapp.presentation.usuario
 
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil.compose.AsyncImage
 import edu.ucne.antillasaquadexapp.ui.theme.AntillasAquaDexAppTheme
+import kotlin.math.roundToInt
 
 @Composable
 fun PerfilScreen(
@@ -26,6 +37,8 @@ fun PerfilScreen(
     PerfilContent(
         state = state,
         onNombreChange = viewModel::onNombreChange,
+        onToggleEdit = viewModel::toggleEditingName,
+        onVolumenChange = viewModel::onVolumenChange,
         onGuardar = viewModel::guardarUsuario
     )
 }
@@ -35,8 +48,23 @@ fun PerfilScreen(
 fun PerfilContent(
     state: UsuarioUiState,
     onNombreChange: (String) -> Unit,
+    onToggleEdit: () -> Unit,
+    onVolumenChange: (Float) -> Unit,
     onGuardar: () -> Unit
 ) {
+    val focusRequester = remember { FocusRequester() }
+    var textFieldValue by remember { mutableStateOf(TextFieldValue(state.nombre)) }
+
+    LaunchedEffect(state.isEditingName) {
+        if (state.isEditingName) {
+            textFieldValue = TextFieldValue(
+                text = state.nombre,
+                selection = TextRange(state.nombre.length)
+            )
+            focusRequester.requestFocus()
+        }
+    }
+
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(title = { Text("Mi perfil") })
@@ -49,30 +77,83 @@ fun PerfilContent(
                 .padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Icon(
-                imageVector = Icons.Default.Person,
-                contentDescription = null,
-                modifier = Modifier.size(100.dp),
-                tint = MaterialTheme.colorScheme.primary
-            )
+            if (state.profilePictureUrl != null) {
+                AsyncImage(
+                    model = state.profilePictureUrl,
+                    contentDescription = "Foto de perfil",
+                    modifier = Modifier
+                        .size(140.dp)
+                        .clip(CircleShape),
+                    contentScale = ContentScale.Crop
+                )
+            } else {
+                Icon(
+                    imageVector = Icons.Default.Person,
+                    contentDescription = null,
+                    modifier = Modifier.size(100.dp),
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            }
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            Text(
-                text = "Información del usuario",
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
             OutlinedTextField(
-                value = state.nombre,
-                onValueChange = onNombreChange,
+                value = if (state.isEditingName) textFieldValue else TextFieldValue(state.nombre),
+                onValueChange = {
+                    textFieldValue = it
+                    if (it.text != state.nombre) {
+                        onNombreChange(it.text)
+                    }
+                },
                 label = { Text("Nombre") },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .focusRequester(focusRequester),
+                singleLine = true,
+                enabled = state.isEditingName,
+                trailingIcon = {
+                    IconButton(onClick = onToggleEdit) {
+                        Icon(
+                            imageVector = Icons.Default.Edit,
+                            contentDescription = "Editar nombre",
+                            tint = if (state.isEditingName) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline
+                        )
+                    }
+                }
             )
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            Text(
+                text = "Ajustes de sonido",
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.align(Alignment.Start)
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Icon(
+                    imageVector = Icons.Default.MusicNote,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.secondary
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Slider(
+                    value = state.volumen,
+                    onValueChange = onVolumenChange,
+                    modifier = Modifier.weight(1f)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = "${(state.volumen * 100).roundToInt()}%",
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.width(40.dp)
+                )
+            }
 
             Spacer(modifier = Modifier.height(32.dp))
 
@@ -94,8 +175,10 @@ fun PerfilContent(
 fun PerfilPreview() {
     AntillasAquaDexAppTheme {
         PerfilContent(
-            state = UsuarioUiState(nombre = "Steven Javier"),
+            state = UsuarioUiState(nombre = "Steven Javier", volumen = 0.7f, isEditingName = false),
             onNombreChange = {},
+            onToggleEdit = {},
+            onVolumenChange = {},
             onGuardar = {}
         )
     }
@@ -109,9 +192,11 @@ fun PerfilPreview() {
 fun PerfilDarkPreview() {
     AntillasAquaDexAppTheme {
         PerfilContent(
-            state = UsuarioUiState(nombre = "Steven Javier"),
+            state = UsuarioUiState(nombre = "Steven Javier", volumen = 0.7f, isEditingName = true),
             onNombreChange = {},
-            onGuardar = {}
+            onToggleEdit = {},
+            onGuardar = {},
+            onVolumenChange = {}
         )
     }
 }

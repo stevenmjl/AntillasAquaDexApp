@@ -1,0 +1,191 @@
+package edu.ucne.antillasaquadexapp.presentation.titulo
+
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import edu.ucne.antillasaquadexapp.R
+import edu.ucne.antillasaquadexapp.ui.theme.AntillasAquaDexAppTheme
+
+@Composable
+fun BienvenidaScreen(
+    viewModel: TituloViewModel = hiltViewModel(),
+    onContinue: () -> Unit
+) {
+    val state by viewModel.state.collectAsStateWithLifecycle()
+
+    BienvenidaContent(
+        state = state,
+        onSincronizar = viewModel::sincronizar,
+        onContinue = onContinue
+    )
+}
+
+@Composable
+fun BienvenidaContent(
+    state: TituloUiState,
+    onSincronizar: () -> Unit,
+    onContinue: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .clickable(enabled = state.isCompletado) { onContinue() }
+    ) {
+        // Imagen de Fondo
+        Image(
+            painter = painterResource(id = R.drawable.img_titulo),
+            contentDescription = null,
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.Crop
+        )
+
+        // Capa de oscurecimiento
+        Surface(
+            modifier = Modifier.fillMaxSize(),
+            color = Color.Black.copy(alpha = 0.4f)
+        ) {}
+
+        // Título
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(24.dp)
+                .offset(y = (-60).dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Text(
+                text = "Antillas\nAquaDex",
+                style = MaterialTheme.typography.displayLarge,
+                fontWeight = FontWeight.Bold,
+                color = Color.White,
+                textAlign = TextAlign.Center,
+                lineHeight = 60.sp
+            )
+        }
+
+        // Estado de Carga / Acción
+        Column(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 80.dp)
+                .padding(horizontal = 40.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            if (state.error != null) {
+                Text(
+                    text = state.error,
+                    color = MaterialTheme.colorScheme.error,
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+                Button(
+                    onClick = onSincronizar,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.errorContainer,
+                        contentColor = MaterialTheme.colorScheme.onErrorContainer
+                    )
+                ) {
+                    Icon(Icons.Default.Refresh, contentDescription = null)
+                    Spacer(Modifier.width(8.dp))
+                    Text("Reintentar")
+                }
+            } else {
+                if (state.isLoading) {
+                    LinearProgressIndicator(
+                        progress = { state.progreso / 100f },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(8.dp),
+                        color = MaterialTheme.colorScheme.primaryContainer,
+                        trackColor = Color.White.copy(alpha = 0.3f),
+                        strokeCap = StrokeCap.Round
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        text = "Sincronizando datos (${state.progreso}%)...",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color.White.copy(alpha = 0.9f)
+                    )
+                } else if (state.isCompletado) {
+                    Text(
+                        text = "Toque para continuar",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = Color.White,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Preview(name = "Cargando", showBackground = true, showSystemUi = true)
+@Composable
+fun TituloScreenCargandoPreview() {
+    AntillasAquaDexAppTheme {
+        BienvenidaContent(
+            state = TituloUiState(isLoading = true),
+            onSincronizar = {},
+            onContinue = {}
+        )
+    }
+}
+
+@Preview(name = "Completado", showBackground = true, showSystemUi = true)
+@Composable
+fun TituloScreenCompletadoPreview() {
+    AntillasAquaDexAppTheme {
+        BienvenidaContent(
+            state = TituloUiState(isCompletado = true),
+            onSincronizar = {},
+            onContinue = {}
+        )
+    }
+}
+
+@Preview(name = "Error", showBackground = true, showSystemUi = true)
+@Composable
+fun TituloScreenErrorPreview() {
+    AntillasAquaDexAppTheme {
+        BienvenidaContent(
+            state = TituloUiState(error = "Error al sincronizar: timeout"),
+            onSincronizar = {},
+            onContinue = {}
+        )
+    }
+}

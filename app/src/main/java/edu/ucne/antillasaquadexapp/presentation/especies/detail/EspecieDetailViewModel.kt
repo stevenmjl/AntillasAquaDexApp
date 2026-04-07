@@ -5,11 +5,13 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import edu.ucne.antillasaquadexapp.domain.repository.EspecieRepository
 import edu.ucne.antillasaquadexapp.util.Resource
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import edu.ucne.antillasaquadexapp.domain.repository.ToggleResultado
 
 @HiltViewModel
 class EspecieDetailViewModel @Inject constructor(
@@ -21,10 +23,14 @@ class EspecieDetailViewModel @Inject constructor(
 
     fun loadEspecie(id: Int) {
         viewModelScope.launch {
-            _state.update { it.copy(isLoading = true) }
+            // Solo mostramos loading si no tenemos ya la especie correcta cargada
+            if (_state.value.especie?.especieId != id) {
+                _state.update { it.copy(isLoading = true, error = null) }
+            }
+            
             when (val result = repository.getEspecieById(id)) {
                 is Resource.Success -> {
-                    _state.update { it.copy(isLoading = false, especie = result.data) }
+                    _state.update { it.copy(isLoading = false, especie = result.data, error = null) }
                 }
                 is Resource.Error -> {
                     _state.update { it.copy(isLoading = false, error = result.message) }
@@ -37,9 +43,26 @@ class EspecieDetailViewModel @Inject constructor(
     fun toggleFavorito() {
         viewModelScope.launch {
             _state.value.especie?.let { especie ->
-                repository.toggleFavorito(especie.especieId)
+                val result = repository.toggleFavorito(especie.especieId)
                 val esFav = repository.esFavorito(especie.especieId)
-                _state.update { it.copy(especie = it.especie?.copy(esFavorito = esFav)) }
+                
+                val mensaje = when (result) {
+                    is ToggleResultado.Agregado -> "${result.currentCount} favoritos"
+                    is ToggleResultado.LimiteAlcanzado -> "Límite de favoritos alcanzado"
+                    ToggleResultado.Removido -> null
+                }
+
+                _state.update { 
+                    it.copy(
+                        especie = it.especie?.copy(esFavorito = esFav),
+                        mensajeFavorito = mensaje
+                    ) 
+                }
+
+                if (mensaje != null) {
+                    delay(3000)
+                    _state.update { it.copy(mensajeFavorito = null) }
+                }
             }
         }
     }

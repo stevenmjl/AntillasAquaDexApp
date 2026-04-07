@@ -5,7 +5,7 @@ data class Especie(
     val nombre: String,
     val nombreCientifico: String,
     val grupo: String,
-    val esAnimal: Boolean,
+    val longitudCm: Double,
     val estado: String,
     val descripcion: String,
     val habitat: String,

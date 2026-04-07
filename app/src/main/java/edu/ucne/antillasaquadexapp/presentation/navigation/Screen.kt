@@ -17,7 +17,8 @@ sealed interface Screen {
         val zonaNombre: String,
         val latitud: Double,
         val longitud: Double,
-        val especieIds: List<Int>
+        val especieIds: List<Int>,
+        val musicaResId: Int
     ) : Screen
 
     @Serializable

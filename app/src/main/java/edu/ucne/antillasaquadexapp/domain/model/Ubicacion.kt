@@ -1,46 +1,118 @@
 package edu.ucne.antillasaquadexapp.domain.model
 
+import edu.ucne.antillasaquadexapp.R
+
 data class Pais(
     val nombre: String,
+    val imagenResId: Int,
     val zonas: List<Zona>
 )
 
 data class Zona(
     val nombre: String,
     val descripcion: String,
-    val imagenUrl: String,
+    val imagenResId: Int,
     val latitud: Double,
     val longitud: Double,
-    val especieIds: List<Int>
+    val especieIds: List<Int>,
+    val musicaResId: Int
 )
 
 val Paises = listOf(
     Pais(
         nombre = "República Dominicana",
+        imagenResId = R.drawable.img_repdom,
         zonas = listOf(
-            Zona("Bahía de Samaná", "Hogar de las ballenas jorobadas.", "https://example.com/samana.jpg", 19.2, -69.3, listOf(1, 4)),
-            Zona("Parque Nacional Jaragua", "Gran biodiversidad marina.", "https://example.com/jaragua.jpg", 17.8, -71.5, listOf(2, 3))
+            Zona(
+                nombre = "Bahía de Samaná",
+                descripcion = "Santuario de ballenas jorobadas.",
+                imagenResId = R.drawable.img_zona_samana,
+                latitud = 19.2,
+                longitud = -69.3,
+                especieIds = listOf(1, 4),
+                musicaResId = R.raw.musica_samana
+            ),
+            Zona(
+                nombre = "Jaragua",
+                descripcion = "Reserva de la biosfera.",
+                imagenResId = R.drawable.img_zona_jaragua,
+                latitud = 17.8,
+                longitud = -71.5,
+                especieIds = listOf(2, 3),
+                musicaResId = R.raw.musica_jaragua
+            )
         )
     ),
     Pais(
         nombre = "Cuba",
+        imagenResId = R.drawable.img_cuba,
         zonas = listOf(
-            Zona("Jardines de la Reina", "Arrecifes de coral vírgenes.", "https://example.com/jardines.jpg", 20.8, -78.9, listOf(1, 2, 3)),
-            Zona("Bahía de Cochinos", "Aguas cristalinas y buceo.", "https://example.com/cochinos.jpg", 22.1, -81.1, listOf(3, 4))
-        )
-    ),
-    Pais(
-        nombre = "Jamaica",
-        zonas = listOf(
-            Zona("Montego Bay Marine Park", "Protección de ecosistemas costeros.", "https://example.com/montego.jpg", 18.5, -77.9, listOf(1, 3)),
-            Zona("Ocho Ríos", "Famoso por sus cascadas y arrecifes.", "https://example.com/ochorios.jpg", 18.4, -77.1, listOf(2, 4))
+            Zona(
+                nombre = "Jardines de la Reina",
+                descripcion = "Parque nacional marino.",
+                imagenResId = R.drawable.img_zona_jardines_reina,
+                latitud = 20.8,
+                longitud = -78.9,
+                especieIds = listOf(1, 2, 3),
+                musicaResId = R.raw.musica_jardines_reina
+            ),
+            Zona(
+                nombre = "Ciénaga de Zapata",
+                descripcion = "Reserva de la biosfera.",
+                imagenResId = R.drawable.img_zona_cienaga_zapata,
+                latitud = 22.3,
+                longitud = -81.2,
+                especieIds = listOf(3, 4),
+                musicaResId = R.raw.musica_cienaga_zapata
+            )
         )
     ),
     Pais(
         nombre = "Puerto Rico",
+        imagenResId = R.drawable.img_puertorico,
         zonas = listOf(
-            Zona("Isla de Culebra", "Reserva natural con tortugas.", "https://example.com/culebra.jpg", 18.3, -65.3, listOf(3, 4)),
-            Zona("La Parguera", "Bosques de manglares y bio-bahía.", "https://example.com/parguera.jpg", 17.9, -67.0, listOf(1, 2))
+            Zona(
+                nombre = "Isla de Mona",
+                descripcion = "Reserva natural.",
+                imagenResId = R.drawable.img_zona_isla_mona,
+                latitud = 18.1,
+                longitud = -67.9,
+                especieIds = listOf(3, 4),
+                musicaResId = R.raw.musica_isla_mona
+            ),
+            Zona(
+                nombre = "Vieques",
+                descripcion = "Bahía bioluminiscente.",
+                imagenResId = R.drawable.img_zona_vieques,
+                latitud = 18.1,
+                longitud = -65.4,
+                especieIds = listOf(1, 2),
+                musicaResId = R.raw.musica_bahia_vieques
+            )
+        )
+    ),
+    Pais(
+        nombre = "Jamaica",
+        imagenResId = R.drawable.img_jamaica,
+        zonas = listOf(
+            Zona(
+                nombre = "Montego Bay",
+                descripcion = "Parque marino.",
+                imagenResId = R.drawable.img_zona_montego_bay,
+                latitud = 18.5,
+                longitud = -77.9,
+                especieIds = listOf(1, 3),
+                musicaResId = R.raw.musica_montego_bay
+            ),
+            Zona(
+                nombre = "Blue Lagoon",
+                descripcion = "Laguna azul.",
+                imagenResId = R.drawable.img_zona_blue_lagoon,
+                latitud = 18.2,
+                longitud = -76.4,
+                especieIds = listOf(2, 4),
+                musicaResId = R.raw.musica_blue_lagoon
+            )
         )
     )
 )
