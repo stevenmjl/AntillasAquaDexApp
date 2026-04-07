@@ -5,5 +5,6 @@ import edu.ucne.antillasaquadexapp.domain.model.Especie
 data class EspecieDetailUiState(
     val isLoading: Boolean = false,
     val especie: Especie? = null,
-    val error: String? = null
+    val error: String? = null,
+    val mensajeFavorito: String? = null
 )
