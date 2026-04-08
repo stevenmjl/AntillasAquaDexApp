@@ -10,4 +10,6 @@ interface TriviaRepository {
     suspend fun guardarProgreso(progreso: TriviaEntity)
     suspend fun actualizarVidas(categoria: String, vidas: Int)
     suspend fun registrarFallo(categoria: String, preguntaId: Int)
+    suspend fun completarTrivia(categoria: String)
+    fun getTodosLosProgresos(): Flow<List<TriviaEntity>>
 }

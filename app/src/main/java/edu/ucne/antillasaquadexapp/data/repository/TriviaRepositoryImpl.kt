@@ -31,4 +31,12 @@ class TriviaRepositoryImpl @Inject constructor(
     override suspend fun registrarFallo(categoria: String, preguntaId: Int) {
         triviaDao.registrarFallo(categoria, preguntaId)
     }
+
+    override suspend fun completarTrivia(categoria: String) {
+        triviaDao.completarTrivia(categoria)
+    }
+
+    override fun getTodosLosProgresos(): Flow<List<TriviaEntity>> {
+        return triviaDao.getAllProgreso()
+    }
 }
