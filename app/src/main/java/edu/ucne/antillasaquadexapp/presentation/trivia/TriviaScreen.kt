@@ -42,12 +42,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
+import edu.ucne.antillasaquadexapp.data.local.model.Dificultad
+import edu.ucne.antillasaquadexapp.data.local.model.PreguntaTrivia
+import edu.ucne.antillasaquadexapp.ui.theme.AntillasAquaDexAppTheme
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TriviaScreen(
     onNavigateBack: () -> Unit,
@@ -59,6 +62,22 @@ fun TriviaScreen(
         viewModel.iniciarTrivia("PECES")
     }
 
+    TriviaContent(
+        state = state,
+        onNavigateBack = onNavigateBack,
+        onResponder = { viewModel.responder(it) },
+        onToggleAyuda = { viewModel.toggleAyuda() }
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun TriviaContent(
+    state: TriviaUiState,
+    onNavigateBack: () -> Unit,
+    onResponder: (Int) -> Unit,
+    onToggleAyuda: () -> Unit
+) {
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -69,7 +88,7 @@ fun TriviaScreen(
                     }
                 },
                 actions = {
-                    IconButton(onClick = { viewModel.toggleAyuda() }) {
+                    IconButton(onClick = onToggleAyuda) {
                         Icon(Icons.Default.HelpOutline, contentDescription = "Ayuda")
                     }
                 }
@@ -118,84 +137,87 @@ fun TriviaScreen(
             Spacer(modifier = Modifier.height(24.dp))
 
             if (state.isLoading) {
-                CircularProgressIndicator()
-            } else if (state.preguntas.isNotEmpty()) {
-                val pregunta = state.preguntas[state.preguntaActualIndex]
-
-                // Card de la Pregunta
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f),
-                    shape = RoundedCornerShape(24.dp),
-                    elevation = CardDefaults.cardElevation(4.dp)
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .padding(20.dp)
-                            .fillMaxSize(),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
-                    ) {
-                        // Imagen de la Especie (si existe)
-                        if (state.imagenEspecieUrl != null) {
-                            AsyncImage(
-                                model = state.imagenEspecieUrl,
-                                contentDescription = "Especie",
-                                modifier = Modifier
-                                    .size(150.dp)
-                                    .clip(RoundedCornerShape(16.dp))
-                                    .background(MaterialTheme.colorScheme.surfaceVariant),
-                                contentScale = ContentScale.Crop
-                            )
-                            Spacer(modifier = Modifier.height(16.dp))
-                        }
-
-                        Text(
-                            text = "Pregunta ${state.preguntaActualIndex + 1} / ${state.preguntas.size}",
-                            style = MaterialTheme.typography.labelLarge,
-                            color = MaterialTheme.colorScheme.secondary
-                        )
-
-                        Spacer(modifier = Modifier.height(8.dp))
-
-                        Text(
-                            text = pregunta.enunciado,
-                            style = MaterialTheme.typography.headlineSmall,
-                            fontWeight = FontWeight.Bold,
-                            textAlign = TextAlign.Center
-                        )
-                    }
+                Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator()
                 }
-
-                Spacer(modifier = Modifier.height(24.dp))
-
-                // Opciones de Respuesta
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    pregunta.opciones.forEachIndexed { index, opcion ->
-                        val colorBase = when {
-                            state.esCorrecto == true && pregunta.respuestaCorrecta == index -> Color(0xFF4CAF50)
-                            state.esCorrecto == false && index == pregunta.respuestaCorrecta -> Color(0xFF4CAF50)
-                            state.esCorrecto == false && state.mensajeRespuesta != null -> Color(0xFFE57373)
-                            else -> MaterialTheme.colorScheme.primaryContainer
-                        }
-
-                        Button(
-                            onClick = { if (state.esCorrecto == null) viewModel.responder(index) },
+            } else if (state.preguntas.isNotEmpty()) {
+                val pregunta = state.preguntas.getOrNull(state.preguntaActualIndex)
+                if (pregunta != null) {
+                    // Card de la Pregunta
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f),
+                        shape = RoundedCornerShape(24.dp),
+                        elevation = CardDefaults.cardElevation(4.dp)
+                    ) {
+                        Column(
                             modifier = Modifier
-                                .fillMaxWidth()
-                                .height(56.dp),
-                            shape = RoundedCornerShape(16.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = colorBase,
-                                contentColor = if (state.esCorrecto != null) Color.White else MaterialTheme.colorScheme.onPrimaryContainer
-                            ),
-                            enabled = state.esCorrecto == null
+                                .padding(20.dp)
+                                .fillMaxSize(),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
                         ) {
-                            Text(text = opcion, fontSize = 16.sp, fontWeight = FontWeight.Medium)
+                            // Imagen de la Especie (si existe)
+                            if (state.imagenEspecieUrl != null) {
+                                AsyncImage(
+                                    model = state.imagenEspecieUrl,
+                                    contentDescription = "Especie",
+                                    modifier = Modifier
+                                        .size(150.dp)
+                                        .clip(RoundedCornerShape(16.dp))
+                                        .background(MaterialTheme.colorScheme.surfaceVariant),
+                                    contentScale = ContentScale.Crop
+                                )
+                                Spacer(modifier = Modifier.height(16.dp))
+                            }
+
+                            Text(
+                                text = "Pregunta ${state.preguntaActualIndex + 1} / ${state.preguntas.size}",
+                                style = MaterialTheme.typography.labelLarge,
+                                color = MaterialTheme.colorScheme.secondary
+                            )
+
+                            Spacer(modifier = Modifier.height(8.dp))
+
+                            Text(
+                                text = pregunta.enunciado,
+                                style = MaterialTheme.typography.headlineSmall,
+                                fontWeight = FontWeight.Bold,
+                                textAlign = TextAlign.Center
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    // Opciones de Respuesta
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        pregunta.opciones.forEachIndexed { index, opcion ->
+                            val colorBase = when {
+                                state.esCorrecto == true && pregunta.respuestaCorrecta == index -> Color(0xFF4CAF50)
+                                state.esCorrecto == false && index == pregunta.respuestaCorrecta -> Color(0xFF4CAF50)
+                                state.esCorrecto == false && state.mensajeRespuesta != null -> Color(0xFFE57373)
+                                else -> MaterialTheme.colorScheme.primaryContainer
+                            }
+
+                            Button(
+                                onClick = { if (state.esCorrecto == null) onResponder(index) },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(56.dp),
+                                shape = RoundedCornerShape(16.dp),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = colorBase,
+                                    contentColor = if (state.esCorrecto != null) Color.White else MaterialTheme.colorScheme.onPrimaryContainer
+                                ),
+                                enabled = state.esCorrecto == null
+                            ) {
+                                Text(text = opcion, fontSize = 16.sp, fontWeight = FontWeight.Medium)
+                            }
                         }
                     }
                 }
@@ -210,7 +232,7 @@ fun TriviaScreen(
             title = { Text("¡Game Over!", fontWeight = FontWeight.Bold) },
             text = { Text("Te quedaste sin vidas. Perdiste en la pregunta sobre la ballena azul. ¡Sigue aprendiendo para mejorar!") },
             confirmButton = {
-                Button(onClick = { onNavigateBack() }) { Text("Volver al Menú") }
+                Button(onClick = onNavigateBack) { Text("Volver al Menú") }
             }
         )
     }
@@ -221,26 +243,87 @@ fun TriviaScreen(
             title = { Text("¡Felicidades!", fontWeight = FontWeight.Bold) },
             text = { Text("Has completado la trivia de Peces. ¡Has ganado una medalla!") },
             confirmButton = {
-                Button(onClick = { onNavigateBack() }) { Text("¡Genial!") }
+                Button(onClick = onNavigateBack) { Text("¡Genial!") }
             }
         )
     }
 
     if (state.mostrarAyuda) {
         AlertDialog(
-            onDismissRequest = { viewModel.toggleAyuda() },
+            onDismissRequest = onToggleAyuda,
             title = { Text("Reglas de la Trivia") },
             text = {
                 Text(
                     "1. Tienes 3 vidas.\n" +
-                    "2. Las preguntas fáciles tienen 20s y las difíciles 10s.\n" +
-                    "3. Si fallas o el tiempo se agota, pierdes una vida.\n" +
-                    "4. ¡Completa todas para ganar medallas!"
+                            "2. Las preguntas fáciles tienen 20s y las difíciles 10s.\n" +
+                            "3. Si fallas o el tiempo se agota, pierdes una vida.\n" +
+                            "4. ¡Completa todas para ganar medallas!"
                 )
             },
             confirmButton = {
-                TextButton(onClick = { viewModel.toggleAyuda() }) { Text("Entendido") }
+                TextButton(onClick = onToggleAyuda) { Text("Entendido") }
             }
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun TriviaPreguntaPreview() {
+    AntillasAquaDexAppTheme {
+        TriviaContent(
+            state = TriviaUiState(
+                isLoading = false,
+                preguntas = listOf(
+                    PreguntaTrivia(
+                        id = 1,
+                        enunciado = "¿Esta especie es un pez?",
+                        opciones = listOf("Sí", "No"),
+                        respuestaCorrecta = 0,
+                        dificultad = Dificultad.FACIL,
+                        categoria = "PECES"
+                    )
+                ),
+                preguntaActualIndex = 0,
+                vidas = 3,
+                tiempoRestante = 15
+            ),
+            onNavigateBack = {},
+            onResponder = {},
+            onToggleAyuda = {}
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun TriviaGameOverPreview() {
+    AntillasAquaDexAppTheme {
+        TriviaContent(
+            state = TriviaUiState(
+                isLoading = false,
+                isGameOver = true,
+                vidas = 0
+            ),
+            onNavigateBack = {},
+            onResponder = {},
+            onToggleAyuda = {}
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun TriviaVictoriaPreview() {
+    AntillasAquaDexAppTheme {
+        TriviaContent(
+            state = TriviaUiState(
+                isLoading = false,
+                isVictory = true
+            ),
+            onNavigateBack = {},
+            onResponder = {},
+            onToggleAyuda = {}
         )
     }
 }
