@@ -6,5 +6,13 @@ data class UsuarioUiState(
     val isLoading: Boolean = true,
     val volumen: Float = 0.7f,
     val isEditingName: Boolean = false,
-    val profilePictureUrl: String? = null
+    val profilePictureUrl: String? = null,
+    val medallas: List<MedallaInfo> = emptyList()
+)
+
+data class MedallaInfo(
+    val categoria: String,
+    val conseguida: Boolean,
+    val imagenResId: Int,
+    val descripcion: String
 )

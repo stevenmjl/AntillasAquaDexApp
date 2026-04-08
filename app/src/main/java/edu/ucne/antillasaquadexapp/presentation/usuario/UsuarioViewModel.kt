@@ -3,18 +3,18 @@ package edu.ucne.antillasaquadexapp.presentation.usuario
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import edu.ucne.antillasaquadexapp.R
+import edu.ucne.antillasaquadexapp.domain.repository.TriviaRepository
 import edu.ucne.antillasaquadexapp.domain.repository.UsuarioRepository
 import edu.ucne.antillasaquadexapp.util.PreferencesManager
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class UsuarioViewModel @Inject constructor(
     private val usuarioRepository: UsuarioRepository,
+    private val triviaRepository: TriviaRepository,
     private val preferencesManager: PreferencesManager
 ) : ViewModel() {
 
@@ -41,6 +41,32 @@ class UsuarioViewModel @Inject constructor(
         viewModelScope.launch {
             preferencesManager.profilePictureUrl.collectLatest { url ->
                 _state.update { it.copy(profilePictureUrl = url) }
+            }
+        }
+
+        viewModelScope.launch {
+            triviaRepository.getTodosLosProgresos().collectLatest { progresos ->
+                val medallas = listOf(
+                    MedallaInfo(
+                        categoria = "PECES",
+                        conseguida = progresos.find { it.categoria == "PECES" }?.medallaFacil ?: false,
+                        imagenResId = R.drawable.img_medalla_peces,
+                        descripcion = "Conseguida al completar Trivia Peces"
+                    ),
+                    MedallaInfo(
+                        categoria = "PLANTAS",
+                        conseguida = progresos.find { it.categoria == "PLANTAS" }?.medallaFacil ?: false,
+                        imagenResId = R.drawable.ic_launcher_foreground, // Placeholder
+                        descripcion = "Conseguida al completar Trivia Plantas"
+                    ),
+                    MedallaInfo(
+                        categoria = "AVES",
+                        conseguida = progresos.find { it.categoria == "AVES" }?.medallaFacil ?: false,
+                        imagenResId = R.drawable.ic_launcher_foreground, // Placeholder
+                        descripcion = "Conseguida al completar Trivia Aves"
+                    )
+                )
+                _state.update { it.copy(medallas = medallas) }
             }
         }
     }
