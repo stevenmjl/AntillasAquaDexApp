@@ -1,45 +1,25 @@
 package edu.ucne.antillasaquadexapp.presentation.trivia
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.FavoriteBorder
-import androidx.compose.material.icons.filled.HelpOutline
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -47,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
+import edu.ucne.antillasaquadexapp.R
 import edu.ucne.antillasaquadexapp.data.local.model.Dificultad
 import edu.ucne.antillasaquadexapp.data.local.model.PreguntaTrivia
 import edu.ucne.antillasaquadexapp.ui.theme.AntillasAquaDexAppTheme
@@ -58,16 +39,191 @@ fun TriviaScreen(
 ) {
     val state by viewModel.state.collectAsState()
 
-    LaunchedEffect(Unit) {
-        viewModel.iniciarTrivia("PECES")
+    if (state.isPlaying) {
+        TriviaContent(
+            state = state,
+            onNavigateBack = { viewModel.toggleConfirmacionSalir() },
+            onResponder = { viewModel.responder(it) },
+            onToggleAyuda = { viewModel.toggleAyuda() },
+            onConfirmarSalir = { viewModel.detenerTrivia() },
+            onCancelarSalir = { viewModel.toggleConfirmacionSalir() }
+        )
+    } else {
+        TriviaMenu(
+            onCategorySelected = { viewModel.iniciarTrivia(it) }
+        )
     }
+}
 
-    TriviaContent(
-        state = state,
-        onNavigateBack = onNavigateBack,
-        onResponder = { viewModel.responder(it) },
-        onToggleAyuda = { viewModel.toggleAyuda() }
-    )
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun TriviaMenu(
+    onCategorySelected: (String) -> Unit
+) {
+    Scaffold(
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = { Text("Zona de Trivia", fontWeight = FontWeight.Bold) }
+            )
+        }
+    ) { padding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight(0.35f)
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.img_trivia),
+                    contentDescription = null,
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop
+                )
+                
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(
+                            Brush.verticalGradient(
+                                colors = listOf(
+                                    Color.Transparent,
+                                    Color.Black.copy(alpha = 0.7f)
+                                )
+                            )
+                        )
+                )
+
+                Column(
+                    modifier = Modifier
+                        .align(Alignment.BottomStart)
+                        .padding(16.dp)
+                ) {
+                    Text(
+                        text = "¡Pon a prueba tus conocimientos!",
+                        style = MaterialTheme.typography.headlineSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = "Aprende sobre la vida marina del Caribe. Gana medallas y desbloquea logros.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color.White.copy(alpha = 0.9f)
+                    )
+                }
+            }
+
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp)
+            ) {
+                Text(
+                    text = "Selecciona una Categoría",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                val categorias = listOf(
+                    TriviaCategoria("PECES", "Explora el mundo de los peces del Caribe", Icons.Default.SetMeal, Color(0xFF4FC3F7), R.drawable.img_medalla_peces),
+                    TriviaCategoria("PLANTAS", "Próximamente", Icons.Default.Park, Color(0xFF81C784), habilitada = false),
+                    TriviaCategoria("AVES", "Próximamente", Icons.Default.AirplanemodeActive, Color(0xFFFFB74D), habilitada = false)
+                )
+
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(2),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    items(categorias) { categoria ->
+                        CategoryCard(
+                            categoria = categoria,
+                            onClick = { if (categoria.habilitada) onCategorySelected(categoria.nombre) }
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+data class TriviaCategoria(
+    val nombre: String,
+    val descripcion: String,
+    val icono: ImageVector,
+    val color: Color,
+    val medallaResId: Int? = null,
+    val habilitada: Boolean = true
+)
+
+@Composable
+fun CategoryCard(categoria: TriviaCategoria, onClick: () -> Unit) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .aspectRatio(0.8f)
+            .clickable(enabled = categoria.habilitada) { onClick() },
+        shape = RoundedCornerShape(20.dp),
+        elevation = CardDefaults.cardElevation(4.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = if (categoria.habilitada) Color.White else Color.LightGray.copy(alpha = 0.5f)
+        )
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(60.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(categoria.color.copy(alpha = 0.2f)),
+                contentAlignment = Alignment.Center
+            ) {
+                if (categoria.medallaResId != null) {
+                    Image(
+                        painter = painterResource(id = categoria.medallaResId),
+                        contentDescription = null,
+                        modifier = Modifier.size(50.dp)
+                    )
+                } else {
+                    Icon(
+                        imageVector = categoria.icono,
+                        contentDescription = null,
+                        tint = categoria.color,
+                        modifier = Modifier.size(32.dp)
+                    )
+                }
+            }
+            
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            Text(
+                text = categoria.nombre,
+                fontWeight = FontWeight.Bold,
+                style = MaterialTheme.typography.titleMedium,
+                textAlign = TextAlign.Center
+            )
+            
+            Spacer(modifier = Modifier.height(4.dp))
+            
+            Text(
+                text = categoria.descripcion,
+                style = MaterialTheme.typography.bodySmall,
+                textAlign = TextAlign.Center,
+                color = Color.Gray
+            )
+        }
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -76,12 +232,14 @@ fun TriviaContent(
     state: TriviaUiState,
     onNavigateBack: () -> Unit,
     onResponder: (Int) -> Unit,
-    onToggleAyuda: () -> Unit
+    onToggleAyuda: () -> Unit,
+    onConfirmarSalir: () -> Unit,
+    onCancelarSalir: () -> Unit
 ) {
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text("Zona de Trivia: ${state.categoria}", fontWeight = FontWeight.Bold) },
+                title = { Text("Trivia: ${state.categoria}", fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Volver")
@@ -102,7 +260,6 @@ fun TriviaContent(
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Vidas y Cronómetro
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -119,12 +276,13 @@ fun TriviaContent(
                     }
                 }
 
+                val maxTiempo = if (state.preguntas.getOrNull(state.preguntaActualIndex)?.dificultad == Dificultad.DIFICIL) 30f else 40f
                 Box(contentAlignment = Alignment.Center) {
                     CircularProgressIndicator(
-                        progress = { state.tiempoRestante / 20f },
+                        progress = { state.tiempoRestante / maxTiempo },
                         modifier = Modifier.size(50.dp),
                         strokeWidth = 4.dp,
-                        color = if (state.tiempoRestante > 5) MaterialTheme.colorScheme.primary else Color.Red
+                        color = if (state.tiempoRestante > 10) MaterialTheme.colorScheme.primary else Color.Red
                     )
                     Text(
                         text = state.tiempoRestante.toString(),
@@ -143,7 +301,6 @@ fun TriviaContent(
             } else if (state.preguntas.isNotEmpty()) {
                 val pregunta = state.preguntas.getOrNull(state.preguntaActualIndex)
                 if (pregunta != null) {
-                    // Card de la Pregunta
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -158,7 +315,6 @@ fun TriviaContent(
                             horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.Center
                         ) {
-                            // Imagen de la Especie (si existe)
                             if (state.imagenEspecieUrl != null) {
                                 AsyncImage(
                                     model = state.imagenEspecieUrl,
@@ -191,7 +347,6 @@ fun TriviaContent(
 
                     Spacer(modifier = Modifier.height(24.dp))
 
-                    // Opciones de Respuesta
                     Column(
                         modifier = Modifier.fillMaxWidth(),
                         verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -225,14 +380,13 @@ fun TriviaContent(
         }
     }
 
-    // Diálogos de Estado
     if (state.isGameOver) {
         AlertDialog(
             onDismissRequest = { },
             title = { Text("¡Game Over!", fontWeight = FontWeight.Bold) },
-            text = { Text("Te quedaste sin vidas. Perdiste en la pregunta sobre la ballena azul. ¡Sigue aprendiendo para mejorar!") },
+            text = { Text("Te quedaste sin vidas. ¡Sigue aprendiendo para mejorar!") },
             confirmButton = {
-                Button(onClick = onNavigateBack) { Text("Volver al Menú") }
+                Button(onClick = onConfirmarSalir) { Text("Volver al Menú") }
             }
         )
     }
@@ -241,9 +395,9 @@ fun TriviaContent(
         AlertDialog(
             onDismissRequest = { },
             title = { Text("¡Felicidades!", fontWeight = FontWeight.Bold) },
-            text = { Text("Has completado la trivia de Peces. ¡Has ganado una medalla!") },
+            text = { Text("Has completado la trivia de ${state.categoria}. ¡Has ganado una medalla!") },
             confirmButton = {
-                Button(onClick = onNavigateBack) { Text("¡Genial!") }
+                Button(onClick = onConfirmarSalir) { Text("¡Genial!") }
             }
         )
     }
@@ -255,7 +409,7 @@ fun TriviaContent(
             text = {
                 Text(
                     "1. Tienes 3 vidas.\n" +
-                            "2. Las preguntas fáciles tienen 20s y las difíciles 10s.\n" +
+                            "2. Las preguntas fáciles tienen 40s y las difíciles 30s.\n" +
                             "3. Si fallas o el tiempo se agota, pierdes una vida.\n" +
                             "4. ¡Completa todas para ganar medallas!"
                 )
@@ -265,14 +419,40 @@ fun TriviaContent(
             }
         )
     }
+
+    if (state.mostrarConfirmacionSalir) {
+        AlertDialog(
+            onDismissRequest = onCancelarSalir,
+            title = { Text("¿Abandonar Trivia?") },
+            text = { Text("Si sales ahora, perderás tu progreso actual en esta categoría. ¿Estás seguro?") },
+            confirmButton = {
+                Button(
+                    onClick = onConfirmarSalir,
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+                ) { Text("Salir") }
+            },
+            dismissButton = {
+                TextButton(onClick = onCancelarSalir) { Text("Continuar Jugando") }
+            }
+        )
+    }
 }
 
 @Preview(showBackground = true)
 @Composable
-fun TriviaPreguntaPreview() {
+fun TriviaMenuPreview() {
+    AntillasAquaDexAppTheme {
+        TriviaMenu(onCategorySelected = {})
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun TriviaQuestionPreview() {
     AntillasAquaDexAppTheme {
         TriviaContent(
             state = TriviaUiState(
+                isPlaying = true,
                 isLoading = false,
                 preguntas = listOf(
                     PreguntaTrivia(
@@ -286,44 +466,14 @@ fun TriviaPreguntaPreview() {
                 ),
                 preguntaActualIndex = 0,
                 vidas = 3,
-                tiempoRestante = 15
+                tiempoRestante = 40,
+                categoria = "PECES"
             ),
             onNavigateBack = {},
             onResponder = {},
-            onToggleAyuda = {}
-        )
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun TriviaGameOverPreview() {
-    AntillasAquaDexAppTheme {
-        TriviaContent(
-            state = TriviaUiState(
-                isLoading = false,
-                isGameOver = true,
-                vidas = 0
-            ),
-            onNavigateBack = {},
-            onResponder = {},
-            onToggleAyuda = {}
-        )
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun TriviaVictoriaPreview() {
-    AntillasAquaDexAppTheme {
-        TriviaContent(
-            state = TriviaUiState(
-                isLoading = false,
-                isVictory = true
-            ),
-            onNavigateBack = {},
-            onResponder = {},
-            onToggleAyuda = {}
+            onToggleAyuda = {},
+            onConfirmarSalir = {},
+            onCancelarSalir = {}
         )
     }
 }
