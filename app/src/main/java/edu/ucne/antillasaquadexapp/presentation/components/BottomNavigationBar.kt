@@ -6,6 +6,7 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Map
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Extension
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -18,6 +19,7 @@ import edu.ucne.antillasaquadexapp.ui.theme.AntillasAquaDexAppTheme
 sealed class BottomBarTab(val route: String, val title: String, val icon: ImageVector) {
     data object Map : BottomBarTab("map", "Mapa", Icons.Default.Map)
     data object Species : BottomBarTab("species", "Especies", Icons.Default.Search)
+    data object Trivia : BottomBarTab("trivia", "Trivia", Icons.Default.Extension)
     data object Favorites : BottomBarTab("favorites", "Favoritos", Icons.Default.Favorite)
     data object Profile : BottomBarTab("profile", "Perfil", Icons.Default.Person)
 }
@@ -30,6 +32,7 @@ fun BottomNavigationBar(
     val tabs = listOf(
         BottomBarTab.Map,
         BottomBarTab.Species,
+        BottomBarTab.Trivia,
         BottomBarTab.Favorites,
         BottomBarTab.Profile
     )
