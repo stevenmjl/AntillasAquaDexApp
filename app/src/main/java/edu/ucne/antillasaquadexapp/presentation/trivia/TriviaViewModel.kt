@@ -34,7 +34,8 @@ class TriviaViewModel @Inject constructor(
                     categoria = categoria,
                     vidas = progreso?.vidasRestantes ?: 3,
                     preguntaActualIndex = 0,
-                    isLoading = false
+                    isLoading = false,
+                    isPlaying = true
                 )
             }
             cargarImagenEspecie()
@@ -44,13 +45,17 @@ class TriviaViewModel @Inject constructor(
 
     private fun startTimer() {
         timerJob?.cancel()
-        val tiempoInicial = if (_state.value.preguntas.getOrNull(_state.value.preguntaActualIndex)?.dificultad == Dificultad.DIFICIL) 10 else 20
+        val tiempoInicial = if (_state.value.preguntas.getOrNull(_state.value.preguntaActualIndex)?.dificultad == Dificultad.DIFICIL) 30 else 40
         _state.update { it.copy(tiempoRestante = tiempoInicial) }
         
         timerJob = viewModelScope.launch {
             while (_state.value.tiempoRestante > 0 && !_state.value.isGameOver) {
-                delay(1000)
-                _state.update { it.copy(tiempoRestante = it.tiempoRestante - 1) }
+                if (!_state.value.mostrarAyuda && !_state.value.mostrarConfirmacionSalir) {
+                    delay(1000)
+                    _state.update { it.copy(tiempoRestante = it.tiempoRestante - 1) }
+                } else {
+                    delay(500) // Verificar periódicamente si se cerró el diálogo
+                }
             }
             if (_state.value.tiempoRestante == 0) {
                 perderVida()
@@ -90,7 +95,9 @@ class TriviaViewModel @Inject constructor(
             startTimer()
         } else {
             _state.update { it.copy(isVictory = true, esCorrecto = null) }
-            // Aquí guardarías el logro de "Trivia completada"
+            viewModelScope.launch {
+                triviaRepository.completarTrivia(_state.value.categoria)
+            }
         }
     }
 
@@ -124,5 +131,14 @@ class TriviaViewModel @Inject constructor(
 
     fun toggleAyuda() {
         _state.update { it.copy(mostrarAyuda = !it.mostrarAyuda) }
+    }
+
+    fun toggleConfirmacionSalir() {
+        _state.update { it.copy(mostrarConfirmacionSalir = !it.mostrarConfirmacionSalir) }
+    }
+
+    fun detenerTrivia() {
+        timerJob?.cancel()
+        _state.update { it.copy(isPlaying = false, preguntas = emptyList(), mostrarConfirmacionSalir = false) }
     }
 }

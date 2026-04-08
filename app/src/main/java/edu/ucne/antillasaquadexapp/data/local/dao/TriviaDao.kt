@@ -21,6 +21,9 @@ interface TriviaDao {
 
     @Query("UPDATE trivia_progreso SET falloEnPreguntaId = :preguntaId WHERE categoria = :categoria")
     suspend fun registrarFallo(categoria: String, preguntaId: Int)
+
+    @Query("UPDATE trivia_progreso SET medallaFacil = 1 WHERE categoria = :categoria")
+    suspend fun completarTrivia(categoria: String)
     
     @Query("SELECT * FROM trivia_progreso")
     fun getAllProgreso(): Flow<List<TriviaEntity>>
