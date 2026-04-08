@@ -6,6 +6,7 @@ import edu.ucne.antillasaquadexapp.data.local.entities.TriviaEntity
 import edu.ucne.antillasaquadexapp.data.local.model.PreguntaTrivia
 import edu.ucne.antillasaquadexapp.domain.repository.TriviaRepository
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 
 class TriviaRepositoryImpl @Inject constructor(
@@ -25,15 +26,30 @@ class TriviaRepositoryImpl @Inject constructor(
     }
 
     override suspend fun actualizarVidas(categoria: String, vidas: Int) {
-        triviaDao.updateVidas(categoria, vidas)
+        val progreso = triviaDao.getProgresoPorCategoria(categoria).first()
+        if (progreso == null) {
+            triviaDao.saveProgreso(TriviaEntity(categoria = categoria, vidasRestantes = vidas))
+        } else {
+            triviaDao.updateVidas(categoria, vidas)
+        }
     }
 
     override suspend fun registrarFallo(categoria: String, preguntaId: Int) {
-        triviaDao.registrarFallo(categoria, preguntaId)
+        val progreso = triviaDao.getProgresoPorCategoria(categoria).first()
+        if (progreso == null) {
+            triviaDao.saveProgreso(TriviaEntity(categoria = categoria, falloEnPreguntaId = preguntaId, vidasRestantes = 2))
+        } else {
+            triviaDao.registrarFallo(categoria, preguntaId)
+        }
     }
 
     override suspend fun completarTrivia(categoria: String) {
-        triviaDao.completarTrivia(categoria)
+        val progreso = triviaDao.getProgresoPorCategoria(categoria).first()
+        if (progreso == null) {
+            triviaDao.saveProgreso(TriviaEntity(categoria = categoria, medallaFacil = true))
+        } else {
+            triviaDao.completarTrivia(categoria)
+        }
     }
 
     override fun getTodosLosProgresos(): Flow<List<TriviaEntity>> {
