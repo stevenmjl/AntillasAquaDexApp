@@ -1,8 +1,13 @@
 package edu.ucne.antillasaquadexapp.presentation.usuario
 
 import android.content.res.Configuration
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MusicNote
@@ -15,8 +20,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
@@ -25,7 +33,9 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
+import edu.ucne.antillasaquadexapp.R
 import edu.ucne.antillasaquadexapp.ui.theme.AntillasAquaDexAppTheme
+import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
 @Composable
@@ -65,10 +75,14 @@ fun PerfilContent(
         }
     }
 
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(title = { Text("Mi perfil") })
-        }
+        },
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
     ) { padding ->
         Column(
             modifier = Modifier
@@ -121,6 +135,52 @@ fun PerfilContent(
                     }
                 }
             )
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            Text(
+                text = "Tus mfedallas",
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.align(Alignment.Start)
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            LazyRow(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                items(state.medallas) { medalla ->
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier
+                            .width(80.dp)
+                            .clickable {
+                                if (medalla.conseguida) {
+                                    scope.launch {
+                                        snackbarHostState.showSnackbar(medalla.descripcion)
+                                    }
+                                }
+                            }
+                    ) {
+                        Image(
+                            painter = painterResource(id = medalla.imagenResId),
+                            contentDescription = medalla.categoria,
+                            modifier = Modifier
+                                .size(64.dp)
+                                .clip(CircleShape),
+                            colorFilter = if (medalla.conseguida) null else ColorFilter.tint(Color.Gray.copy(alpha = 0.8f))
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = medalla.categoria,
+                            style = MaterialTheme.typography.labelSmall,
+                            fontWeight = FontWeight.Bold,
+                            color = if (medalla.conseguida) MaterialTheme.colorScheme.primary else Color.Gray
+                        )
+                    }
+                }
+            }
 
             Spacer(modifier = Modifier.height(32.dp))
 

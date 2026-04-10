@@ -25,6 +25,9 @@ sealed interface Screen {
     data object EspecieLista : Screen
 
     @Serializable
+    data object Trivia : Screen
+
+    @Serializable
     data class EspecieDetalle(val especieId: Int) : Screen
 
     @Serializable

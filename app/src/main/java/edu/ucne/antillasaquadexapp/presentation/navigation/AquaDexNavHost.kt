@@ -22,6 +22,7 @@ import edu.ucne.antillasaquadexapp.presentation.main.MainScreen
 import edu.ucne.antillasaquadexapp.presentation.main.ZonaDetailScreen
 import edu.ucne.antillasaquadexapp.presentation.especies.detail.EspecieDetailScreen
 import edu.ucne.antillasaquadexapp.presentation.especies.list.EspecieListScreen
+import edu.ucne.antillasaquadexapp.presentation.trivia.TriviaScreen
 import edu.ucne.antillasaquadexapp.presentation.usuario.PerfilScreen
 import edu.ucne.antillasaquadexapp.presentation.titulo.BienvenidaScreen
 import edu.ucne.antillasaquadexapp.util.AudioManager
@@ -43,12 +44,12 @@ fun AquaDexNavHost(
             }
             // Si entramos a Favoritos o Perfil suena la música principal
             currentRoute?.contains("Favoritos") == true ||
-            currentRoute?.contains("Perfil") == true -> {
-                audioManager.playMusic(R.raw.musica_principal)
-            }
-            // Si volvemos a Bienvenida, suena la música principal
+            currentRoute?.contains("Perfil") == true ||
             currentRoute?.contains("Bienvenida") == true -> {
                 audioManager.playMusic(R.raw.musica_principal)
+            }
+            currentRoute?.contains("Trivia") == true -> {
+                audioManager.playMusic(R.raw.musica_trivia)
             }
             // Para Mapa, PaisDetalle, EspecieLista, EspecieDetalle no se hace nada
         }
@@ -64,14 +65,16 @@ fun AquaDexNavHost(
                     currentTab = when {
                         currentRoute?.contains("Mapa") == true -> "map"
                         currentRoute?.contains("EspecieLista") == true -> "species"
+                        currentRoute?.contains("Trivia") == true -> "trivia"
                         currentRoute?.contains("Favoritos") == true -> "favorites"
                         currentRoute?.contains("Perfil") == true -> "profile"
                         else -> "map"
                     },
                     onTabSelected = { tab ->
-                        val destination = when (tab) {
+                        val destination: Screen = when (tab) {
                             BottomBarTab.Map -> Screen.Mapa
                             BottomBarTab.Species -> Screen.EspecieLista
+                            BottomBarTab.Trivia -> Screen.Trivia
                             BottomBarTab.Favorites -> Screen.Favoritos
                             BottomBarTab.Profile -> Screen.Perfil
                         }
@@ -161,6 +164,16 @@ fun AquaDexNavHost(
                     FavoritosScreen(
                         onEspecieClick = { especieId ->
                             navController.navigate(Screen.EspecieDetalle(especieId))
+                        }
+                    )
+                }
+
+                composable<Screen.Trivia> {
+                    TriviaScreen(
+                        onNavigateBack = {
+                            navController.navigate(Screen.Mapa) {
+                                popUpTo(Screen.Mapa) { inclusive = true }
+                            }
                         }
                     )
                 }

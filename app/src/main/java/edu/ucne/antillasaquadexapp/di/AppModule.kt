@@ -12,15 +12,18 @@ import dagger.hilt.components.SingletonComponent
 import edu.ucne.antillasaquadexapp.data.local.dao.FavoritoDao
 import edu.ucne.antillasaquadexapp.data.local.dao.EspecieDao
 import edu.ucne.antillasaquadexapp.data.local.dao.UsuarioDao
+import edu.ucne.antillasaquadexapp.data.local.dao.TriviaDao
 import edu.ucne.antillasaquadexapp.data.local.database.AppDatabase
 import edu.ucne.antillasaquadexapp.data.remote.EspecieApi
 import edu.ucne.antillasaquadexapp.data.remote.ClimaApi
 import edu.ucne.antillasaquadexapp.data.repository.EspecieRepositoryImpl
 import edu.ucne.antillasaquadexapp.data.repository.UsuarioRepositoryImpl
 import edu.ucne.antillasaquadexapp.data.repository.ClimaRepositoryImpl
+import edu.ucne.antillasaquadexapp.data.repository.TriviaRepositoryImpl
 import edu.ucne.antillasaquadexapp.domain.repository.EspecieRepository
 import edu.ucne.antillasaquadexapp.domain.repository.UsuarioRepository
 import edu.ucne.antillasaquadexapp.domain.repository.ClimaRepository
+import edu.ucne.antillasaquadexapp.domain.repository.TriviaRepository
 import edu.ucne.antillasaquadexapp.util.PreferencesManager
 import okhttp3.OkHttpClient
 import coil.ImageLoader
@@ -111,6 +114,9 @@ object AppModule {
     fun provideEspecieDao(db: AppDatabase): EspecieDao = db.especieDao()
 
     @Provides
+    fun provideTriviaDao(db: AppDatabase): TriviaDao = db.triviaDao()
+
+    @Provides
     @Singleton
     fun provideEspecieRepository(
         api: EspecieApi, 
@@ -130,4 +136,9 @@ object AppModule {
     @Singleton
     fun provideClimaRepository(api: ClimaApi): ClimaRepository =
         ClimaRepositoryImpl(api)
+
+    @Provides
+    @Singleton
+    fun provideTriviaRepository(triviaDao: TriviaDao): TriviaRepository =
+        TriviaRepositoryImpl(triviaDao)
 }
