@@ -30,6 +30,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import edu.ucne.antillasaquadexapp.domain.model.Paises
+import edu.ucne.antillasaquadexapp.presentation.components.AquaDexTopBar
 import edu.ucne.antillasaquadexapp.ui.theme.AntillasAquaDexAppTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -39,9 +40,7 @@ fun MainScreen(
 ) {
     Scaffold(
         topBar = {
-            CenterAlignedTopAppBar(
-                title = { Text("Antillas AquaDex", fontWeight = FontWeight.Bold) }
-            )
+            AquaDexTopBar(title = "Antillas AquaDex")
         }
     ) { padding ->
         Column(
