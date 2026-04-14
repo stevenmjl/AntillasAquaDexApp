@@ -34,6 +34,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import edu.ucne.antillasaquadexapp.R
+import edu.ucne.antillasaquadexapp.presentation.components.AquaDexTopBar
 import edu.ucne.antillasaquadexapp.ui.theme.AntillasAquaDexAppTheme
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
@@ -80,7 +81,7 @@ fun PerfilContent(
 
     Scaffold(
         topBar = {
-            CenterAlignedTopAppBar(title = { Text("Mi perfil") })
+            AquaDexTopBar(title = "Mi perfil")
         },
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
     ) { padding ->
@@ -139,7 +140,7 @@ fun PerfilContent(
             Spacer(modifier = Modifier.height(32.dp))
 
             Text(
-                text = "Tus mfedallas",
+                text = "Tus medallas",
                 style = MaterialTheme.typography.titleMedium,
                 modifier = Modifier.align(Alignment.Start)
             )
