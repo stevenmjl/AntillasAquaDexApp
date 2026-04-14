@@ -47,6 +47,7 @@ import edu.ucne.antillasaquadexapp.domain.model.Clima
 import edu.ucne.antillasaquadexapp.domain.model.Especie
 import edu.ucne.antillasaquadexapp.presentation.clima.ClimaUiState
 import edu.ucne.antillasaquadexapp.presentation.clima.ClimaViewModel
+import edu.ucne.antillasaquadexapp.presentation.components.AquaDexTopBar
 import edu.ucne.antillasaquadexapp.presentation.especies.list.EspecieListUiState
 import edu.ucne.antillasaquadexapp.presentation.especies.list.EspecieListViewModel
 import edu.ucne.antillasaquadexapp.ui.theme.AntillasAquaDexAppTheme
@@ -93,13 +94,9 @@ fun ZonaDetailContent(
 ) {
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text(zoneName) },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Atrás")
-                    }
-                }
+            AquaDexTopBar(
+                title = zoneName,
+                onNavigateBack = onNavigateBack
             )
         }
     ) { padding ->
