@@ -65,8 +65,8 @@ fun MainScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clickable { onPaisClick(pais.nombre) },
-                        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 4.dp),
-                        shape = MaterialTheme.shapes.large
+                        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp),
+                        shape = MaterialTheme.shapes.extraLarge
                     ) {
                         Column(
                             modifier = Modifier.fillMaxWidth(),
