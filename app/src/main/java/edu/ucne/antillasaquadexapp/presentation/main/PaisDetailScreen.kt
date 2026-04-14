@@ -68,34 +68,46 @@ fun ZonaCard(
     modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
-    Box(
+    ElevatedCard(
         modifier = modifier
             .fillMaxWidth()
-            .height(350.dp)
-            .clickable { onClick() }
+            .height(280.dp)
+            .padding(16.dp)
+            .clickable { onClick() },
+        shape = MaterialTheme.shapes.extraLarge,
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 4.dp)
     ) {
-        Image(
-            painter = painterResource(id = zona.imagenResId),
-            contentDescription = zona.nombre,
-            modifier = Modifier.fillMaxSize(),
-            contentScale = ContentScale.Crop
-        )
+        Box(modifier = Modifier.fillMaxSize()) {
+            Image(
+                painter = painterResource(id = zona.imagenResId),
+                contentDescription = zona.nombre,
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop
+            )
 
-        Surface(
-            modifier = Modifier.fillMaxSize(),
-            color = Color.Black.copy(alpha = 0.3f)
-        ) {}
+            Surface(
+                modifier = Modifier.fillMaxSize(),
+                color = Color.Black.copy(alpha = 0.4f)
+            ) {}
 
-        Text(
-            text = zona.nombre.uppercase(),
-            style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.ExtraBold,
-            color = Color.White,
-            textAlign = TextAlign.Center,
-            modifier = Modifier
-                .align(Alignment.Center)
-                .padding(16.dp)
-        )
+            Column(
+                modifier = Modifier
+                    .align(Alignment.BottomStart)
+                    .padding(24.dp)
+            ) {
+                Text(
+                    text = "Explorar",
+                    style = MaterialTheme.typography.labelLarge,
+                    color = Color.White.copy(alpha = 0.8f)
+                )
+                Text(
+                    text = zona.nombre,
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.ExtraBold,
+                    color = Color.White
+                )
+            }
+        }
     }
 }
 
