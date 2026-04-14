@@ -22,6 +22,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import edu.ucne.antillasaquadexapp.domain.model.Paises
 import edu.ucne.antillasaquadexapp.domain.model.Zona
+import edu.ucne.antillasaquadexapp.presentation.components.AquaDexTopBar
 import edu.ucne.antillasaquadexapp.ui.theme.AntillasAquaDexAppTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -35,13 +36,9 @@ fun PaisDetailScreen(
 
     Scaffold(
         topBar = {
-            CenterAlignedTopAppBar(
-                title = { Text(nombrePais, fontWeight = FontWeight.Bold) },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Atrás")
-                    }
-                }
+            AquaDexTopBar(
+                title = nombrePais,
+                onNavigateBack = onNavigateBack
             )
         }
     ) { padding ->
