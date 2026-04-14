@@ -1,13 +1,14 @@
 package edu.ucne.antillasaquadexapp.presentation.trivia
 
+import android.content.res.Configuration
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -20,25 +21,32 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import edu.ucne.antillasaquadexapp.R
 import edu.ucne.antillasaquadexapp.data.local.model.Dificultad
 import edu.ucne.antillasaquadexapp.data.local.model.PreguntaTrivia
 import edu.ucne.antillasaquadexapp.presentation.components.AquaDexTopBar
+import edu.ucne.antillasaquadexapp.presentation.usuario.UsuarioViewModel
 import edu.ucne.antillasaquadexapp.ui.theme.AntillasAquaDexAppTheme
 
 @Composable
 fun TriviaScreen(
     onNavigateBack: () -> Unit,
-    viewModel: TriviaViewModel = hiltViewModel()
+    viewModel: TriviaViewModel = hiltViewModel(),
+    usuarioViewModel: UsuarioViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsState()
+    val usuarioState by usuarioViewModel.state.collectAsStateWithLifecycle()
 
     if (state.isPlaying) {
         TriviaContent(
@@ -51,6 +59,7 @@ fun TriviaScreen(
         )
     } else {
         TriviaMenu(
+            nombreUsuario = usuarioState.nombre,
             onCategorySelected = { viewModel.iniciarTrivia(it) }
         )
     }
@@ -59,6 +68,7 @@ fun TriviaScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TriviaMenu(
+    nombreUsuario: String,
     onCategorySelected: (String) -> Unit
 ) {
     Scaffold(
@@ -70,11 +80,12 @@ fun TriviaMenu(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
+                .verticalScroll(rememberScrollState())
         ) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .fillMaxHeight(0.35f)
+                    .height(260.dp)
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.img_trivia),
@@ -90,7 +101,7 @@ fun TriviaMenu(
                             Brush.verticalGradient(
                                 colors = listOf(
                                     Color.Transparent,
-                                    Color.Black.copy(alpha = 0.7f)
+                                    Color.Black.copy(alpha = 0.8f)
                                 )
                             )
                         )
@@ -99,7 +110,7 @@ fun TriviaMenu(
                 Column(
                     modifier = Modifier
                         .align(Alignment.BottomStart)
-                        .padding(16.dp)
+                        .padding(20.dp)
                 ) {
                     Text(
                         text = "¡Pon a prueba tus conocimientos!",
@@ -107,9 +118,9 @@ fun TriviaMenu(
                         fontWeight = FontWeight.Bold,
                         color = Color.White
                     )
-                    Spacer(modifier = Modifier.height(4.dp))
+                    Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = "Aprende sobre la vida marina del Caribe. Gana medallas y desbloquea logros.",
+                        text = "Aprende sobre la vida marina del Caribe y gana medallas exclusivas.",
                         style = MaterialTheme.typography.bodyMedium,
                         color = Color.White.copy(alpha = 0.9f)
                     )
@@ -118,34 +129,39 @@ fun TriviaMenu(
 
             Column(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp)
+                    .padding(20.dp)
             ) {
+                val saludoText = buildAnnotatedString {
+                    append("Selecciona una categoría, ")
+                    withStyle(style = SpanStyle(
+                        color = MaterialTheme.colorScheme.primary,
+                        fontWeight = FontWeight.Bold
+                    )) {
+                        append(if (nombreUsuario.isBlank()) "Explorador" else nombreUsuario)
+                    }
+                    append(".")
+                }
+
                 Text(
-                    text = "Selecciona una Categoría",
-                    style = MaterialTheme.typography.titleMedium,
+                    text = saludoText,
+                    style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.SemiBold
                 )
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(20.dp))
 
                 val categorias = listOf(
-                    TriviaCategoria("PECES", "Explora el mundo de los peces del Caribe", Icons.Default.SetMeal, Color(0xFF4FC3F7), R.drawable.img_medalla_peces),
-                    TriviaCategoria("PLANTAS", "Próximamente", Icons.Default.Park, Color(0xFF81C784), habilitada = false),
-                    TriviaCategoria("AVES", "Próximamente", Icons.Default.AirplanemodeActive, Color(0xFFFFB74D), habilitada = false)
+                    TriviaCategoria("PECES", "Explora el mundo de los peces", Icons.Default.SetMeal, Color(0xFF4FC3F7), R.drawable.img_medalla_peces),
+                    TriviaCategoria("ZONAS", "Próximamente", Icons.Default.Map, Color(0xFF81C784), habilitada = false),
+                    TriviaCategoria("LOGROS", "Próximamente", Icons.Default.EmojiEvents, Color(0xFFFFB74D), habilitada = false)
                 )
 
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(2),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    items(categorias) { categoria ->
-                        CategoryCard(
-                            categoria = categoria,
-                            onClick = { if (categoria.habilitada) onCategorySelected(categoria.nombre) }
-                        )
-                    }
+                categorias.forEach { categoria ->
+                    CategoryCard(
+                        categoria = categoria,
+                        onClick = { if (categoria.habilitada) onCategorySelected(categoria.nombre) }
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
                 }
             }
         }
@@ -163,64 +179,67 @@ data class TriviaCategoria(
 
 @Composable
 fun CategoryCard(categoria: TriviaCategoria, onClick: () -> Unit) {
-    Card(
+    ElevatedCard(
         modifier = Modifier
             .fillMaxWidth()
-            .aspectRatio(0.8f)
             .clickable(enabled = categoria.habilitada) { onClick() },
-        shape = RoundedCornerShape(20.dp),
-        elevation = CardDefaults.cardElevation(4.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = if (categoria.habilitada) Color.White else Color.LightGray.copy(alpha = 0.5f)
+        shape = MaterialTheme.shapes.extraLarge,
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp),
+        colors = CardDefaults.elevatedCardColors(
+            containerColor = if (categoria.habilitada) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
         )
     ) {
-        Column(
+        Row(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+                .fillMaxWidth()
+                .padding(20.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Box(
-                modifier = Modifier
-                    .size(60.dp)
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(categoria.color.copy(alpha = 0.2f)),
-                contentAlignment = Alignment.Center
+            Surface(
+                modifier = Modifier.size(70.dp),
+                shape = CircleShape,
+                color = categoria.color.copy(alpha = 0.15f)
             ) {
-                if (categoria.medallaResId != null) {
-                    Image(
-                        painter = painterResource(id = categoria.medallaResId),
-                        contentDescription = null,
-                        modifier = Modifier.size(50.dp)
-                    )
-                } else {
-                    Icon(
-                        imageVector = categoria.icono,
-                        contentDescription = null,
-                        tint = categoria.color,
-                        modifier = Modifier.size(32.dp)
-                    )
+                Box(contentAlignment = Alignment.Center) {
+                    if (categoria.medallaResId != null) {
+                        Image(
+                            painter = painterResource(id = categoria.medallaResId),
+                            contentDescription = null,
+                            modifier = Modifier.size(50.dp)
+                        )
+                    } else {
+                        Icon(
+                            imageVector = categoria.icono,
+                            contentDescription = null,
+                            tint = categoria.color,
+                            modifier = Modifier.size(32.dp)
+                        )
+                    }
                 }
             }
             
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.width(20.dp))
             
-            Text(
-                text = categoria.nombre,
-                fontWeight = FontWeight.Bold,
-                style = MaterialTheme.typography.titleMedium,
-                textAlign = TextAlign.Center
-            )
-            
-            Spacer(modifier = Modifier.height(4.dp))
-            
-            Text(
-                text = categoria.descripcion,
-                style = MaterialTheme.typography.bodySmall,
-                textAlign = TextAlign.Center,
-                color = Color.Gray
-            )
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = categoria.nombre,
+                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.titleLarge
+                )
+                Text(
+                    text = categoria.descripcion,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+
+            if (categoria.habilitada) {
+                Icon(
+                    imageVector = Icons.Default.ChevronRight,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            }
         }
     }
 }
@@ -437,7 +456,7 @@ fun TriviaContent(
 @Composable
 fun TriviaMenuPreview() {
     AntillasAquaDexAppTheme {
-        TriviaMenu(onCategorySelected = {})
+        TriviaMenu(nombreUsuario = "Pedro", onCategorySelected = {})
     }
 }
 
