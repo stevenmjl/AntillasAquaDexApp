@@ -22,6 +22,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import edu.ucne.antillasaquadexapp.domain.model.Especie
+import edu.ucne.antillasaquadexapp.presentation.components.AquaDexTopBar
 import edu.ucne.antillasaquadexapp.presentation.components.ConfirmaBorrarDialog
 import edu.ucne.antillasaquadexapp.presentation.usuario.UsuarioViewModel
 import edu.ucne.antillasaquadexapp.ui.theme.AntillasAquaDexAppTheme
@@ -89,7 +90,7 @@ fun FavoritosContent(
 
     Scaffold(
         topBar = {
-            CenterAlignedTopAppBar(title = { Text("Mis favoritos") })
+            AquaDexTopBar(title = "Mis favoritos")
         }
     ) { padding ->
         Box(
