@@ -24,6 +24,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import edu.ucne.antillasaquadexapp.domain.model.Especie
+import edu.ucne.antillasaquadexapp.presentation.components.AquaDexTopBar
 import edu.ucne.antillasaquadexapp.ui.theme.AntillasAquaDexAppTheme
 
 @Composable
@@ -56,7 +57,7 @@ fun EspecieListContent(
     Scaffold(
         topBar = {
             Column {
-                CenterAlignedTopAppBar(title = { Text("Enciclopedia marina") })
+                AquaDexTopBar(title = "Enciclopedia marina")
                 SearchBar(
                     query = state.busqueda,
                     onQueryChange = onBusquedaChange,
