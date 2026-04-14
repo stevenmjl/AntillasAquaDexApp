@@ -13,9 +13,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -62,11 +61,11 @@ fun MainScreen(
                 contentPadding = PaddingValues(bottom = 16.dp)
             ) {
                 items(Paises) { pais ->
-                    Card(
+                    ElevatedCard(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clickable { onPaisClick(pais.nombre) },
-                        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 4.dp),
                         shape = MaterialTheme.shapes.large
                     ) {
                         Column(
