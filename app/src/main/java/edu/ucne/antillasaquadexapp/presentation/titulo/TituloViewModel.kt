@@ -28,6 +28,8 @@ class TituloViewModel @Inject constructor(
             especieRepository.esSyncCompletada().collect { isCompleted ->
                 if (isCompleted) {
                     _state.update { it.copy(isLoading = false, isCompletado = true) }
+                    // Si ya se completó la inicial, buscamos actualizaciones en segundo plano silenciosamente
+                    especieRepository.sincronizarNuevasEspecies()
                 } else {
                     sincronizar()
                 }
