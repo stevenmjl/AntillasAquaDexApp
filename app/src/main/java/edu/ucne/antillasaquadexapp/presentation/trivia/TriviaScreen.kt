@@ -30,6 +30,7 @@ import coil.compose.AsyncImage
 import edu.ucne.antillasaquadexapp.R
 import edu.ucne.antillasaquadexapp.data.local.model.Dificultad
 import edu.ucne.antillasaquadexapp.data.local.model.PreguntaTrivia
+import edu.ucne.antillasaquadexapp.presentation.components.AquaDexTopBar
 import edu.ucne.antillasaquadexapp.ui.theme.AntillasAquaDexAppTheme
 
 @Composable
@@ -62,9 +63,7 @@ fun TriviaMenu(
 ) {
     Scaffold(
         topBar = {
-            CenterAlignedTopAppBar(
-                title = { Text("Zona de Trivia", fontWeight = FontWeight.Bold) }
-            )
+            AquaDexTopBar(title = "Zona de Trivia")
         }
     ) { padding ->
         Column(
@@ -238,13 +237,9 @@ fun TriviaContent(
 ) {
     Scaffold(
         topBar = {
-            CenterAlignedTopAppBar(
-                title = { Text("Trivia: ${state.categoria}", fontWeight = FontWeight.Bold) },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Volver")
-                    }
-                },
+            AquaDexTopBar(
+                title = "Trivia: ${state.categoria}",
+                onNavigateBack = onNavigateBack,
                 actions = {
                     IconButton(onClick = onToggleAyuda) {
                         Icon(Icons.Default.HelpOutline, contentDescription = "Ayuda")
