@@ -59,6 +59,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import edu.ucne.antillasaquadexapp.domain.model.Especie
+import edu.ucne.antillasaquadexapp.presentation.components.AquaDexTopBar
 import edu.ucne.antillasaquadexapp.ui.theme.AntillasAquaDexAppTheme
 import java.text.DecimalFormat
 import java.text.DecimalFormatSymbols
@@ -92,13 +93,9 @@ fun EspecieDetailContent(
 ) {
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text("Detalle de especie") },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Atrás")
-                    }
-                }
+            AquaDexTopBar(
+                title = "Detalle de especie",
+                onNavigateBack = onNavigateBack
             )
         }
     ) { padding ->
