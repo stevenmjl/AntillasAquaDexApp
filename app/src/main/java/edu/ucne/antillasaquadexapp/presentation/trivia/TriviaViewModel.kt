@@ -78,9 +78,10 @@ class TriviaViewModel @Inject constructor(
     fun responder(opcionSeleccionada: Int) {
         if (_state.value.esCorrecto != null || _state.value.isGameOver || _state.value.isVictory) return
 
-        val indiceReal = opcionSeleccionada - 1
         val pregunta = _state.value.preguntas.getOrNull(_state.value.preguntaActualIndex) ?: return
-        val esCorrecta = pregunta.respuestaCorrecta == indiceReal
+        
+        // Ahora comparamos directamente con tu número (1, 2, 3 o 4)
+        val esCorrecta = pregunta.respuestaCorrecta == opcionSeleccionada
 
         if (esCorrecta) {
             _state.update { it.copy(esCorrecto = true, mensajeRespuesta = "¡Correcto!") }
@@ -92,7 +93,7 @@ class TriviaViewModel @Inject constructor(
             _state.update { 
                 it.copy(
                     esCorrecto = false, 
-                    mensajeRespuesta = "Incorrecto. Era la opción ${pregunta.respuestaCorrecta + 1}" 
+                    mensajeRespuesta = "Incorrecto. Era la opción ${pregunta.respuestaCorrecta}" 
                 ) 
             }
             viewModelScope.launch {
@@ -114,7 +115,6 @@ class TriviaViewModel @Inject constructor(
             cargarImagenEspecie()
             startTimer()
         } else {
-            // SOLO AQUÍ SE GANA: Cuando se responde bien la última pregunta
             timerJob?.cancel()
             _state.update { it.copy(isVictory = true, esCorrecto = null) }
             viewModelScope.launch {
@@ -133,7 +133,6 @@ class TriviaViewModel @Inject constructor(
                 triviaRepository.registrarFallo(_state.value.categoria, preguntaId)
             }
         } else {
-            // Si fallas, NO avanzamos. Reiniciamos el estado de la pregunta actual para re-intento.
             _state.update { 
                 it.copy(
                     vidas = nuevasVidas, 
@@ -141,7 +140,6 @@ class TriviaViewModel @Inject constructor(
                     mensajeRespuesta = null
                 ) 
             }
-            // Reiniciamos el temporizador para que el usuario tenga tiempo de pensar de nuevo
             startTimer()
         }
     }
