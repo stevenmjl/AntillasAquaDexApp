@@ -8,21 +8,93 @@ object TriviaProvider {
     private val preguntasPeces = listOf(
         PreguntaTrivia(
             id = 1,
-            enunciado = "¿Esta especie es un pez?",
-            opciones = listOf("Sí", "No"),
-            respuestaCorrecta = 1, 
-            dificultad = Dificultad.FACIL, // 20 segundos
+            enunciado = "¿Cuál es el pez más grande del mundo que habita en el Caribe?",
+            opciones = listOf("Tiburón de Arrecife", "Mero Nasa", "Barracuda", "Tiburón Ballena"),
+            respuestaCorrecta = 4,
+            dificultad = Dificultad.FACIL,
             categoria = "PECES",
-            especieId = 153
+            especieId = 22
         ),
         PreguntaTrivia(
             id = 2,
-            enunciado = "El Tiburón Martillo, común en el Caribe, tiene un esqueleto de tipo:",
-            opciones = listOf("Óseo", "Metálico", "Cartilaginoso", "No tiene esqueleto"),
-            respuestaCorrecta = 3, 
-            dificultad = Dificultad.DIFICIL, // 40 segundos
+            enunciado = "El Pez León es conocido en el Caribe por ser una especie:",
+            opciones = listOf("Protegida", "Endémica", "Invasora", "Extinta"),
+            respuestaCorrecta = 3,
+            dificultad = Dificultad.FACIL,
             categoria = "PECES",
-            especieId = 156 
+            especieId = 154
+        ),
+        PreguntaTrivia(
+            id = 3,
+            enunciado = "¿Qué pez es famoso por producir arena blanca al digerir el carbonato de calcio?",
+            opciones = listOf("Barracuda", "Pez Loro", "Pez Cirujano", "Pez Cofre"),
+            respuestaCorrecta = 2,
+            dificultad = Dificultad.FACIL,
+            categoria = "PECES",
+            especieId = 132
+        ),
+        PreguntaTrivia(
+            id = 4,
+            enunciado = "El Pez Erizo tiene la sorprendente capacidad de:",
+            opciones = listOf("Cambiar de color", "Inflarse de agua o aire", "Volar distancias cortas", "Desaparecer en la arena"),
+            respuestaCorrecta = 2,
+            dificultad = Dificultad.FACIL,
+            categoria = "PECES",
+            especieId = 155
+        ),
+        PreguntaTrivia(
+            id = 5,
+            enunciado = "¿Cuál de estos peces tiene una espina afilada como un bisturí en la base de su cola?",
+            opciones = listOf("Ángel Reina", "Pargo Gris", "Rabirrubia", "Cirujano Azul"),
+            respuestaCorrecta = 4,
+            dificultad = Dificultad.FACIL,
+            categoria = "PECES",
+            especieId = 139
+        ),
+        PreguntaTrivia(
+            id = 6,
+            enunciado = "El Tiburón Nodriza es un pez de fondo que suele ser más activo durante la:",
+            opciones = listOf("Noche", "Mañana", "Tarde", "Migración anual"),
+            respuestaCorrecta = 1,
+            dificultad = Dificultad.FACIL,
+            categoria = "PECES",
+            especieId = 12
+        ),
+        PreguntaTrivia(
+            id = 7,
+            enunciado = "¿De qué se alimenta principalmente el Tiburón Ballena?",
+            opciones = listOf("Peces grandes", "Tortugas marinas", "Plancton y krill", "Corales"),
+            respuestaCorrecta = 3,
+            dificultad = Dificultad.FACIL,
+            categoria = "PECES",
+            especieId = 22
+        ),
+        PreguntaTrivia(
+            id = 8,
+            enunciado = "El Grunt Francés emite sonidos característicos al:",
+            opciones = listOf("Frotar sus dientes", "Golpear las rocas", "Mover sus aletas", "Soltar burbujas"),
+            respuestaCorrecta = 1,
+            dificultad = Dificultad.DIFICIL,
+            categoria = "PECES",
+            especieId = 72
+        ),
+        PreguntaTrivia(
+            id = 9,
+            enunciado = "¿Cómo suele cazar el Pez Trompeta Atlántico en los arrecifes?",
+            opciones = listOf("En grandes grupos", "Persiguiendo a gran velocidad", "Saltando del agua", "Sigilosamente oculto entre corales"),
+            respuestaCorrecta = 4,
+            dificultad = Dificultad.DIFICIL,
+            categoria = "PECES",
+            especieId = 173
+        ),
+        PreguntaTrivia(
+            id = 10,
+            enunciado = "El Tiburón Martillo Gigante tiene un esqueleto compuesto por:",
+            opciones = listOf("Hueso", "Quitina", "Cartílago", "Proteínas elásticas"),
+            respuestaCorrecta = 3,
+            dificultad = Dificultad.DIFICIL,
+            categoria = "PECES",
+            especieId = 32
         )
     )
 
