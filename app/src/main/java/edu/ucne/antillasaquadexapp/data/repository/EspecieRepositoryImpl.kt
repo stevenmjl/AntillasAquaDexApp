@@ -15,6 +15,9 @@ import android.content.Context
 import coil.ImageLoader
 import coil.request.ImageRequest
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import javax.inject.Inject
@@ -51,12 +54,16 @@ class EspecieRepositoryImpl @Inject constructor(
                             val entities = remoteEspecies.map { it.toDomain().toEntity() }
                             especieDao.upsertAll(entities)
                             
-                            // Precarga de imágenes
-                            remoteEspecies.forEach { dto ->
-                                val request = ImageRequest.Builder(context)
-                                    .data(dto.imagenUrl ?: "")
-                                    .build()
-                                imageLoader.enqueue(request)
+                            // Precarga de imágenes REAL (espera a que descarguen en paralelo)
+                            coroutineScope {
+                                remoteEspecies.map { dto ->
+                                    async {
+                                        val request = ImageRequest.Builder(context)
+                                            .data(dto.imagenUrl ?: "")
+                                            .build()
+                                        imageLoader.execute(request)
+                                    }
+                                }.awaitAll()
                             }
 
                             val progreso = if (page <= totalPaginasEstimadas) 
@@ -102,11 +109,15 @@ class EspecieRepositoryImpl @Inject constructor(
                         especieDao.upsertAll(entities)
                         
                         // Precarga silenciosa de imágenes
-                        remoteEspecies.forEach { dto ->
-                            val request = ImageRequest.Builder(context)
-                                .data(dto.imagenUrl ?: "")
-                                .build()
-                            imageLoader.enqueue(request)
+                        coroutineScope {
+                            remoteEspecies.map { dto ->
+                                async {
+                                    val request = ImageRequest.Builder(context)
+                                        .data(dto.imagenUrl ?: "")
+                                        .build()
+                                    imageLoader.execute(request)
+                                }
+                            }.awaitAll()
                         }
                         page++
                     } else {

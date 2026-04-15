@@ -41,7 +41,11 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideImageLoader(@ApplicationContext context: Context): ImageLoader = ImageLoader.Builder(context)
+    fun provideImageLoader(
+        @ApplicationContext context: Context,
+        okHttpClient: OkHttpClient
+    ): ImageLoader = ImageLoader.Builder(context)
+        .okHttpClient(okHttpClient)
         .memoryCache {
             MemoryCache.Builder(context)
                 .maxSizePercent(0.25)
