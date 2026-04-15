@@ -25,56 +25,76 @@ class TriviaViewModel @Inject constructor(
 
     fun iniciarTrivia(categoria: String) {
         viewModelScope.launch {
+            _state.update { 
+                it.copy(
+                    isLoading = true,
+                    isVictory = false,
+                    isGameOver = false,
+                    preguntaActualIndex = 0,
+                    vidas = 3,
+                    esCorrecto = null,
+                    mensajeRespuesta = null,
+                    isPlaying = true
+                )
+            }
+            
             val preguntas = triviaRepository.getPreguntasPorCategoria(categoria)
-            val progreso = triviaRepository.getProgresoPorCategoria(categoria).firstOrNull()
             
             _state.update { 
                 it.copy(
                     preguntas = preguntas,
                     categoria = categoria,
-                    vidas = progreso?.vidasRestantes ?: 3,
-                    preguntaActualIndex = 0,
-                    isLoading = false,
-                    isPlaying = true
+                    isLoading = false
                 )
             }
-            cargarImagenEspecie()
-            startTimer()
+            if (preguntas.isNotEmpty()) {
+                cargarImagenEspecie()
+                startTimer()
+            }
         }
     }
 
     private fun startTimer() {
         timerJob?.cancel()
-        val tiempoInicial = if (_state.value.preguntas.getOrNull(_state.value.preguntaActualIndex)?.dificultad == Dificultad.DIFICIL) 30 else 40
+        val pregunta = _state.value.preguntas.getOrNull(_state.value.preguntaActualIndex)
+        val tiempoInicial = if (pregunta?.dificultad == Dificultad.DIFICIL) 30 else 40
         _state.update { it.copy(tiempoRestante = tiempoInicial) }
         
         timerJob = viewModelScope.launch {
-            while (_state.value.tiempoRestante > 0 && !_state.value.isGameOver) {
-                if (!_state.value.mostrarAyuda && !_state.value.mostrarConfirmacionSalir) {
+            while (_state.value.tiempoRestante > 0 && !_state.value.isGameOver && !_state.value.isVictory) {
+                if (!_state.value.mostrarAyuda && !_state.value.mostrarConfirmacionSalir && _state.value.esCorrecto == null) {
                     delay(1000)
                     _state.update { it.copy(tiempoRestante = it.tiempoRestante - 1) }
                 } else {
-                    delay(500) // Verificar periódicamente si se cerró el diálogo
+                    delay(500)
                 }
             }
-            if (_state.value.tiempoRestante == 0) {
+            if (_state.value.tiempoRestante <= 0 && _state.value.esCorrecto == null && !_state.value.isVictory) {
                 perderVida()
             }
         }
     }
 
-    fun responder(indiceOpcion: Int) {
-        val pregunta = _state.value.preguntas[_state.value.preguntaActualIndex]
-        val esCorrecta = pregunta.respuestaCorrecta == indiceOpcion
+    fun responder(opcionSeleccionada: Int) {
+        if (_state.value.esCorrecto != null || _state.value.isGameOver || _state.value.isVictory) return
+
+        val indiceReal = opcionSeleccionada - 1
+        val pregunta = _state.value.preguntas.getOrNull(_state.value.preguntaActualIndex) ?: return
+        val esCorrecta = pregunta.respuestaCorrecta == indiceReal
 
         if (esCorrecta) {
             _state.update { it.copy(esCorrecto = true, mensajeRespuesta = "¡Correcto!") }
             viewModelScope.launch {
-                delay(1500)
+                delay(1200) 
                 avanzarPregunta()
             }
         } else {
-            _state.update { it.copy(esCorrecto = false, mensajeRespuesta = "Incorrecto. Era: ${pregunta.opciones[pregunta.respuestaCorrecta]}") }
+            _state.update { 
+                it.copy(
+                    esCorrecto = false, 
+                    mensajeRespuesta = "Incorrecto. Era la opción ${pregunta.respuestaCorrecta + 1}" 
+                ) 
+            }
             viewModelScope.launch {
                 delay(1500)
                 perderVida()
@@ -94,6 +114,8 @@ class TriviaViewModel @Inject constructor(
             cargarImagenEspecie()
             startTimer()
         } else {
+            // SOLO AQUÍ SE GANA: Cuando se responde bien la última pregunta
+            timerJob?.cancel()
             _state.update { it.copy(isVictory = true, esCorrecto = null) }
             viewModelScope.launch {
                 triviaRepository.completarTrivia(_state.value.categoria)
@@ -104,13 +126,22 @@ class TriviaViewModel @Inject constructor(
     private fun perderVida() {
         val nuevasVidas = _state.value.vidas - 1
         if (nuevasVidas <= 0) {
-            val preguntaId = _state.value.preguntas[_state.value.preguntaActualIndex].id
-            _state.update { it.copy(vidas = 0, isGameOver = true, falloEnPreguntaId = preguntaId) }
+            timerJob?.cancel()
+            val preguntaId = _state.value.preguntas.getOrNull(_state.value.preguntaActualIndex)?.id ?: 0
+            _state.update { it.copy(vidas = 0, isGameOver = true, esCorrecto = null) }
             viewModelScope.launch {
                 triviaRepository.registrarFallo(_state.value.categoria, preguntaId)
             }
         } else {
-            _state.update { it.copy(vidas = nuevasVidas, esCorrecto = null, mensajeRespuesta = null) }
+            // Si fallas, NO avanzamos. Reiniciamos el estado de la pregunta actual para re-intento.
+            _state.update { 
+                it.copy(
+                    vidas = nuevasVidas, 
+                    esCorrecto = null, 
+                    mensajeRespuesta = null
+                ) 
+            }
+            // Reiniciamos el temporizador para que el usuario tenga tiempo de pensar de nuevo
             startTimer()
         }
     }
@@ -139,6 +170,16 @@ class TriviaViewModel @Inject constructor(
 
     fun detenerTrivia() {
         timerJob?.cancel()
-        _state.update { it.copy(isPlaying = false, preguntas = emptyList(), mostrarConfirmacionSalir = false) }
+        _state.update { 
+            it.copy(
+                isPlaying = false, 
+                isVictory = false, 
+                isGameOver = false,
+                preguntas = emptyList(), 
+                mostrarConfirmacionSalir = false,
+                esCorrecto = null,
+                mensajeRespuesta = null
+            ) 
+        }
     }
 }

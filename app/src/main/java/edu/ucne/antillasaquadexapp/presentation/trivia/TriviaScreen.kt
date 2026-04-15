@@ -381,7 +381,7 @@ fun TriviaContent(
                             }
 
                             Button(
-                                onClick = { if (state.esCorrecto == null) onResponder(index) },
+                                onClick = { if (state.esCorrecto == null) onResponder(index + 1) }, // Enviamos index + 1 (1 al 4)
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .height(56.dp),
