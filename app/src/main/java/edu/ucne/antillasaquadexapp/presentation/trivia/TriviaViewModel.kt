@@ -57,7 +57,8 @@ class TriviaViewModel @Inject constructor(
     private fun startTimer() {
         timerJob?.cancel()
         val pregunta = _state.value.preguntas.getOrNull(_state.value.preguntaActualIndex)
-        val tiempoInicial = if (pregunta?.dificultad == Dificultad.DIFICIL) 30 else 40
+        // Fácil: 20s, Difícil: 40s
+        val tiempoInicial = if (pregunta?.dificultad == Dificultad.FACIL) 20 else 40
         _state.update { it.copy(tiempoRestante = tiempoInicial) }
         
         timerJob = viewModelScope.launch {
@@ -79,8 +80,6 @@ class TriviaViewModel @Inject constructor(
         if (_state.value.esCorrecto != null || _state.value.isGameOver || _state.value.isVictory) return
 
         val pregunta = _state.value.preguntas.getOrNull(_state.value.preguntaActualIndex) ?: return
-        
-        // Ahora comparamos directamente con tu número (1, 2, 3 o 4)
         val esCorrecta = pregunta.respuestaCorrecta == opcionSeleccionada
 
         if (esCorrecta) {

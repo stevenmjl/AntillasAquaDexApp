@@ -7,12 +7,10 @@ data class PreguntaTrivia(
     val respuestaCorrecta: Int,
     val dificultad: Dificultad,
     val categoria: String,
-    val especieId: Int? = null,
-    val videoUrl: String? = null
+    val especieId: Int? = null
 )
 
 enum class Dificultad {
     FACIL,
-    NORMAL,
     DIFICIL
 }

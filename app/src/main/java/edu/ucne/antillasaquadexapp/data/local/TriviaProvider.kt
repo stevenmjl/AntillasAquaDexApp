@@ -10,8 +10,8 @@ object TriviaProvider {
             id = 1,
             enunciado = "¿Esta especie es un pez?",
             opciones = listOf("Sí", "No"),
-            respuestaCorrecta = 1, // Opción 1: "Sí"
-            dificultad = Dificultad.FACIL,
+            respuestaCorrecta = 1, 
+            dificultad = Dificultad.FACIL, // 20 segundos
             categoria = "PECES",
             especieId = 153
         ),
@@ -19,8 +19,8 @@ object TriviaProvider {
             id = 2,
             enunciado = "El Tiburón Martillo, común en el Caribe, tiene un esqueleto de tipo:",
             opciones = listOf("Óseo", "Metálico", "Cartilaginoso", "No tiene esqueleto"),
-            respuestaCorrecta = 3, // Opción 3: "Cartilaginoso"
-            dificultad = Dificultad.NORMAL,
+            respuestaCorrecta = 3, 
+            dificultad = Dificultad.DIFICIL, // 40 segundos
             categoria = "PECES",
             especieId = 156 
         )
