@@ -19,11 +19,14 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.ColorMatrix
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -216,7 +219,7 @@ fun PerfilContent(
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         modifier = Modifier
-                            .width(85.dp)
+                            .width(100.dp)
                             .clickable {
                                 if (medalla.conseguida) {
                                     scope.launch {
@@ -225,27 +228,54 @@ fun PerfilContent(
                                 }
                             }
                     ) {
-                        Surface(
-                            shape = CircleShape,
-                            shadowElevation = if (medalla.conseguida) 4.dp else 0.dp,
-                            color = if (medalla.conseguida) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-                        ) {
-                            Image(
-                                painter = painterResource(id = medalla.imagenResId),
-                                contentDescription = medalla.categoria,
-                                modifier = Modifier
-                                    .size(70.dp)
-                                    .padding(8.dp),
-                                colorFilter = if (medalla.conseguida) null else ColorFilter.tint(Color.Gray.copy(alpha = 0.6f))
-                            )
+                        Box(contentAlignment = Alignment.BottomEnd) {
+                            Surface(
+                                shape = CircleShape,
+                                shadowElevation = if (medalla.conseguida) 8.dp else 0.dp,
+                                color = if (medalla.conseguida) MaterialTheme.colorScheme.surface 
+                                        else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
+                                border = if (medalla.conseguida) null 
+                                         else androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.2f))
+                            ) {
+                                Image(
+                                    painter = painterResource(id = medalla.imagenResId),
+                                    contentDescription = medalla.categoria,
+                                    modifier = Modifier
+                                        .size(70.dp)
+                                        .padding(10.dp)
+                                        .graphicsLayer {
+                                            alpha = if (medalla.conseguida) 1f else 0.2f
+                                        },
+                                    colorFilter = if (medalla.conseguida) null 
+                                                  else ColorFilter.tint(MaterialTheme.colorScheme.onSurfaceVariant)
+                                )
+                            }
+                            
+                            if (!medalla.conseguida) {
+                                Surface(
+                                    modifier = Modifier.size(22.dp),
+                                    shape = CircleShape,
+                                    color = MaterialTheme.colorScheme.surface,
+                                    shadowElevation = 2.dp
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Lock,
+                                        contentDescription = null,
+                                        modifier = Modifier.padding(4.dp),
+                                        tint = MaterialTheme.colorScheme.outline.copy(alpha = 0.6f)
+                                    )
+                                }
+                            }
                         }
+                        
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
                             text = medalla.categoria,
                             style = MaterialTheme.typography.labelMedium,
-                            fontWeight = FontWeight.Medium,
+                            fontWeight = if (medalla.conseguida) FontWeight.Bold else FontWeight.Medium,
                             textAlign = TextAlign.Center,
-                            color = if (medalla.conseguida) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline
+                            color = if (medalla.conseguida) MaterialTheme.colorScheme.primary 
+                                    else MaterialTheme.colorScheme.outline.copy(alpha = 0.7f)
                         )
                     }
                 }
@@ -253,7 +283,7 @@ fun PerfilContent(
 
             Spacer(modifier = Modifier.height(40.dp))
 
-            // Sección de Ajustes
+            // Sección de ajustes
             Text(
                 text = "Ajustes de sonido",
                 style = MaterialTheme.typography.titleLarge,

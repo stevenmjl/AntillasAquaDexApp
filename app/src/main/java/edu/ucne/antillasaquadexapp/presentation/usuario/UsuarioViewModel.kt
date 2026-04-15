@@ -51,19 +51,61 @@ class UsuarioViewModel @Inject constructor(
                         categoria = "PECES",
                         conseguida = progresos.find { it.categoria == "PECES" }?.medallaFacil ?: false,
                         imagenResId = R.drawable.img_medalla_peces,
-                        descripcion = "Conseguida al completar Trivia Peces"
+                        descripcion = "Completar Trivia Peces"
                     ),
                     MedallaInfo(
-                        categoria = "PLANTAS",
-                        conseguida = progresos.find { it.categoria == "PLANTAS" }?.medallaFacil ?: false,
-                        imagenResId = R.drawable.ic_launcher_foreground, // Placeholder
-                        descripcion = "Conseguida al completar Trivia Plantas"
+                        categoria = "MAMÍFEROS",
+                        conseguida = progresos.find { it.categoria == "MAMÍFEROS" }?.medallaFacil ?: false,
+                        imagenResId = R.drawable.img_medalla_mamiferos,
+                        descripcion = "Completar Trivia Mamíferos"
                     ),
                     MedallaInfo(
                         categoria = "AVES",
                         conseguida = progresos.find { it.categoria == "AVES" }?.medallaFacil ?: false,
-                        imagenResId = R.drawable.ic_launcher_foreground, // Placeholder
-                        descripcion = "Conseguida al completar Trivia Aves"
+                        imagenResId = R.drawable.img_medalla_aves,
+                        descripcion = "Completar Trivia Aves"
+                    ),
+                    MedallaInfo(
+                        categoria = "PLANTAS",
+                        conseguida = progresos.find { it.categoria == "PLANTAS" }?.medallaFacil ?: false,
+                        imagenResId = R.drawable.img_medalla_plantas,
+                        descripcion = "Completar Trivia Plantas"
+                    ),
+                    MedallaInfo(
+                        categoria = "MOLUSCOS",
+                        conseguida = progresos.find { it.categoria == "MOLUSCOS" }?.medallaFacil ?: false,
+                        imagenResId = R.drawable.img_medalla_moluscos,
+                        descripcion = "Completar Trivia Moluscos"
+                    ),
+                    MedallaInfo(
+                        categoria = "REPTILES",
+                        conseguida = progresos.find { it.categoria == "REPTILES" }?.medallaFacil ?: false,
+                        imagenResId = R.drawable.img_medalla_reptiles,
+                        descripcion = "Completar Trivia Reptiles"
+                    ),
+                    MedallaInfo(
+                        categoria = "CNIDARIOS",
+                        conseguida = progresos.find { it.categoria == "CNIDARIOS" }?.medallaFacil ?: false,
+                        imagenResId = R.drawable.img_medalla_cnidarios,
+                        descripcion = "Completar Trivia Cnidarios"
+                    ),
+                    MedallaInfo(
+                        categoria = "PORÍFEROS",
+                        conseguida = progresos.find { it.categoria == "PORÍFEROS" }?.medallaFacil ?: false,
+                        imagenResId = R.drawable.img_medalla_poliferos,
+                        descripcion = "Completar Trivia Poríferos"
+                    ),
+                    MedallaInfo(
+                        categoria = "CRUSTÁCEOS",
+                        conseguida = progresos.find { it.categoria == "CRUSTÁCEOS" }?.medallaFacil ?: false,
+                        imagenResId = R.drawable.img_medalla_crustaceos,
+                        descripcion = "Completar Trivia Crustáceos"
+                    ),
+                    MedallaInfo(
+                        categoria = "EQUINODERMOS",
+                        conseguida = progresos.find { it.categoria == "EQUINODERMOS" }?.medallaFacil ?: false,
+                        imagenResId = R.drawable.img_medalla_equinodermos,
+                        descripcion = "Completar Trivia Equinodermos"
                     )
                 )
                 _state.update { it.copy(medallas = medallas) }
