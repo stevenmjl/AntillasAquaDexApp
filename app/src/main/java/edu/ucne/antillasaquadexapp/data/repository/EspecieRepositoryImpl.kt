@@ -143,9 +143,10 @@ class EspecieRepositoryImpl @Inject constructor(
             favoritoDao.getAll(),
             especieDao.getAll()
         ) { favorites, allSpecies ->
-            val favIds = favorites.map { it.especieId }.toSet()
-            allSpecies.filter { favIds.contains(it.especieId) }
+            val favMap = favorites.associateBy { it.especieId }
+            allSpecies.filter { favMap.containsKey(it.especieId) }
                 .map { it.toDomain(true) }
+                .sortedBy { favMap[it.especieId]?.orden ?: 0 }
         }
     }
 
@@ -156,12 +157,20 @@ class EspecieRepositoryImpl @Inject constructor(
         } else {
             val count = favoritoDao.getCount()
             if (count < 20) {
-                favoritoDao.insert(FavoritoEntity(especieId))
+                val maxOrden = favoritoDao.getMaxOrden() ?: -1
+                favoritoDao.insert(FavoritoEntity(especieId, maxOrden + 1))
                 ToggleResultado.Agregado(count + 1)
             } else {
                 ToggleResultado.LimiteAlcanzado
             }
         }
+    }
+
+    override suspend fun reordenarFavoritos(nuevaLista: List<Especie>) {
+        val entities = nuevaLista.mapIndexed { index, especie ->
+            FavoritoEntity(especie.especieId, index)
+        }
+        favoritoDao.updateAll(entities)
     }
 
     override suspend fun getFavoritosCount(): Int {

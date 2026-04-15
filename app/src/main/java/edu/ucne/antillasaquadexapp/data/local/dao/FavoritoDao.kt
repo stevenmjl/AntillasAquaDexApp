@@ -6,11 +6,14 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface FavoritoDao {
-    @Query("SELECT * FROM favoritos")
+    @Query("SELECT * FROM favoritos ORDER BY orden ASC")
     fun getAll(): Flow<List<FavoritoEntity>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(favorito: FavoritoEntity)
+
+    @Update
+    suspend fun updateAll(favoritos: List<FavoritoEntity>)
 
     @Delete
     suspend fun delete(favorito: FavoritoEntity)
@@ -20,4 +23,7 @@ interface FavoritoDao {
     
     @Query("SELECT COUNT(*) FROM favoritos")
     suspend fun getCount(): Int
+
+    @Query("SELECT MAX(orden) FROM favoritos")
+    suspend fun getMaxOrden(): Int?
 }
