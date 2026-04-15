@@ -13,5 +13,6 @@ data class PreguntaTrivia(
 
 enum class Dificultad {
     FACIL,
+    NORMAL,
     DIFICIL
 }

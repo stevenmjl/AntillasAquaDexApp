@@ -14,43 +14,129 @@ object TriviaProvider {
             dificultad = Dificultad.FACIL,
             categoria = "PECES",
             especieId = 153
-        ),
+        )
+    )
+
+    private val preguntasMamiferos = listOf(
         PreguntaTrivia(
-            id = 2,
-            enunciado = "¿Cuánto mide aproximadamente la ballena jorobada?",
-            opciones = listOf("12 metros", "14 metros", "25 metros", "16 metros"),
-            respuestaCorrecta = 1,
-            dificultad = Dificultad.FACIL,
-            categoria = "PECES",
-            especieId = null,
-            videoUrl = "https://youtu.be/WXkeDSTeT78?si=OeR1o5qMv_aLn2mF"
-        ),
-        PreguntaTrivia(
-            id = 3,
-            enunciado = "Los peces respiran a través de pulmones.",
+            id = 101,
+            enunciado = "¿Los delfines son mamíferos?",
             opciones = listOf("Verdadero", "Falso"),
-            respuestaCorrecta = 1,
+            respuestaCorrecta = 0,
             dificultad = Dificultad.FACIL,
-            categoria = "PECES",
-            especieId = null
-        ),
+            categoria = "MAMÍFEROS"
+        )
+    )
+
+    private val preguntasAves = listOf(
         PreguntaTrivia(
-            id = 4,
-            enunciado = "¿Qué órgano permite a los peces flotar a diferentes profundidades?",
-            opciones = listOf("Branquias", "Vejiga natatoria", "Aletas", "Hígado"),
-            respuestaCorrecta = 1,
-            dificultad = Dificultad.DIFICIL,
-            categoria = "PECES",
-            especieId = null
+            id = 301,
+            enunciado = "¿El Pelícano Pardo es un ave común en las Antillas?",
+            opciones = listOf("Sí", "No"),
+            respuestaCorrecta = 0,
+            dificultad = Dificultad.FACIL,
+            categoria = "AVES"
+        )
+    )
+
+    private val preguntasPlantas = listOf(
+        PreguntaTrivia(
+            id = 401,
+            enunciado = "¿Los manglares protegen las costas de la erosión?",
+            opciones = listOf("Sí", "No"),
+            respuestaCorrecta = 0,
+            dificultad = Dificultad.FACIL,
+            categoria = "PLANTAS"
+        )
+    )
+
+    private val preguntasMoluscos = listOf(
+        PreguntaTrivia(
+            id = 501,
+            enunciado = "¿El caracol reina es un molusco?",
+            opciones = listOf("Verdadero", "Falso"),
+            respuestaCorrecta = 0,
+            dificultad = Dificultad.FACIL,
+            categoria = "MOLUSCOS"
+        )
+    )
+
+    private val preguntasReptiles = listOf(
+        PreguntaTrivia(
+            id = 601,
+            enunciado = "¿Las tortugas marinas ponen sus huevos en la arena?",
+            opciones = listOf("Sí", "No"),
+            respuestaCorrecta = 0,
+            dificultad = Dificultad.FACIL,
+            categoria = "REPTILES"
+        )
+    )
+
+    private val preguntasCnidarios = listOf(
+        PreguntaTrivia(
+            id = 701,
+            enunciado = "¿Las medusas pertenecen al grupo de los Cnidarios?",
+            opciones = listOf("Sí", "No"),
+            respuestaCorrecta = 0,
+            dificultad = Dificultad.FACIL,
+            categoria = "CNIDARIOS"
+        )
+    )
+
+    private val preguntasPoriferos = listOf(
+        PreguntaTrivia(
+            id = 801,
+            enunciado = "¿Las esponjas de mar son Poríferos?",
+            opciones = listOf("Sí", "No"),
+            respuestaCorrecta = 0,
+            dificultad = Dificultad.FACIL,
+            categoria = "PORÍFEROS"
+        )
+    )
+
+    private val preguntasCrustaceos = listOf(
+        PreguntaTrivia(
+            id = 901,
+            enunciado = "¿Las langostas son crustáceos?",
+            opciones = listOf("Verdadero", "Falso"),
+            respuestaCorrecta = 0,
+            dificultad = Dificultad.FACIL,
+            categoria = "CRUSTÁCEOS"
+        )
+    )
+
+    private val preguntasEquinodermos = listOf(
+        PreguntaTrivia(
+            id = 1001,
+            enunciado = "¿Las estrellas de mar son equinodermos?",
+            opciones = listOf("Sí", "No"),
+            respuestaCorrecta = 0,
+            dificultad = Dificultad.FACIL,
+            categoria = "EQUINODERMOS"
         )
     )
 
     fun getPreguntasPorCategoria(categoria: String): List<PreguntaTrivia> {
         return when (categoria.uppercase()) {
             "PECES" -> preguntasPeces
+            "MAMÍFEROS" -> preguntasMamiferos
+            "AVES" -> preguntasAves
+            "PLANTAS" -> preguntasPlantas
+            "MOLUSCOS" -> preguntasMoluscos
+            "REPTILES" -> preguntasReptiles
+            "CNIDARIOS" -> preguntasCnidarios
+            "PORÍFEROS" -> preguntasPoriferos
+            "CRUSTÁCEOS" -> preguntasCrustaceos
+            "EQUINODERMOS" -> preguntasEquinodermos
             else -> emptyList()
         }
     }
 
-    fun getAllPreguntas(): List<PreguntaTrivia> = preguntasPeces // Expandir cuando haya más categorías
+    fun getAllPreguntas(): List<PreguntaTrivia> = 
+        preguntasPeces + preguntasMamiferos + preguntasAves + preguntasPlantas + 
+        preguntasMoluscos + preguntasReptiles + preguntasCnidarios + 
+        preguntasPoriferos + preguntasCrustaceos + preguntasEquinodermos
+
+    fun getCategoriasDisponibles(): List<String> = 
+        listOf("PECES", "MAMÍFEROS", "AVES", "PLANTAS", "MOLUSCOS", "REPTILES", "CNIDARIOS", "PORÍFEROS", "CRUSTÁCEOS", "EQUINODERMOS")
 }

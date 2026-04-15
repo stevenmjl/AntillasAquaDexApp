@@ -151,9 +151,16 @@ fun TriviaMenu(
                 Spacer(modifier = Modifier.height(20.dp))
 
                 val categorias = listOf(
-                    TriviaCategoria("PECES", "Explora el mundo de los peces", Icons.Default.SetMeal, Color(0xFF4FC3F7), R.drawable.img_medalla_peces),
-                    TriviaCategoria("ZONAS", "Próximamente", Icons.Default.Map, Color(0xFF81C784), habilitada = false),
-                    TriviaCategoria("LOGROS", "Próximamente", Icons.Default.EmojiEvents, Color(0xFFFFB74D), habilitada = false)
+                    TriviaCategoria("PECES", "Peces óseos y cartilaginosos", Icons.Default.SetMeal, Color(0xFF4FC3F7), R.drawable.img_medalla_peces),
+                    TriviaCategoria("MAMÍFEROS", "Delfines, manatíes y ballenas", Icons.Default.Pets, Color(0xFF64B5F6), R.drawable.img_medalla_mamiferos),
+                    TriviaCategoria("AVES", "Aves costeras y marinas", Icons.Default.Flight, Color(0xFFFFD54F), R.drawable.img_medalla_aves),
+                    TriviaCategoria("PLANTAS", "Manglares y flora marina", Icons.Default.Eco, Color(0xFF81C784), R.drawable.img_medalla_plantas),
+                    TriviaCategoria("MOLUSCOS", "Caracoles, pulpos y bivalvos", Icons.Default.BakeryDining, Color(0xFFBA68C8), R.drawable.img_medalla_moluscos),
+                    TriviaCategoria("REPTILES", "Tortugas y reptiles marinos", Icons.Default.WbSunny, Color(0xFFFF8A65), R.drawable.img_medalla_reptiles),
+                    TriviaCategoria("CNIDARIOS", "Corales, medusas y anémonas", Icons.Default.Waves, Color(0xFF4DB6AC), R.drawable.img_medalla_cnidarios),
+                    TriviaCategoria("PORÍFEROS", "Esponjas de mar", Icons.Default.BubbleChart, Color(0xFF90A4AE), R.drawable.img_medalla_poliferos),
+                    TriviaCategoria("CRUSTÁCEOS", "Langostas, cangrejos y camarones", Icons.Default.Tsunami, Color(0xFFE57373), R.drawable.img_medalla_crustaceos),
+                    TriviaCategoria("EQUINODERMOS", "Estrellas y erizos de mar", Icons.Default.Star, Color(0xFFFFF176), R.drawable.img_medalla_equinodermos)
                 )
 
                 categorias.forEach { categoria ->
