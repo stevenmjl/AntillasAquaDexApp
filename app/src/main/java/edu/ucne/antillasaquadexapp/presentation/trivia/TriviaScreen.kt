@@ -12,6 +12,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
+import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -262,6 +263,7 @@ fun TriviaContent(
     onCancelarSalir: () -> Unit
 ) {
     Scaffold(
+        containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp),
         topBar = {
             AquaDexTopBar(
                 title = "Trivia: ${state.categoria}",
@@ -371,30 +373,44 @@ fun TriviaContent(
 
                     Column(
                         modifier = Modifier.fillMaxWidth(),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                        verticalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
                         pregunta.opciones.forEachIndexed { index, opcion ->
                             val opcionNumero = index + 1
-                            val colorBase = when {
-                                state.esCorrecto == true && pregunta.respuestaCorrecta == opcionNumero -> Color(0xFF4CAF50)
-                                state.esCorrecto == false && opcionNumero == pregunta.respuestaCorrecta -> Color(0xFF4CAF50)
-                                state.esCorrecto == false && state.esCorrecto != null && state.mensajeRespuesta?.contains(opcionNumero.toString()) == true -> Color(0xFFE57373)
-                                else -> MaterialTheme.colorScheme.primaryContainer
+                            val isCorrect = state.esCorrecto == true && pregunta.respuestaCorrecta == opcionNumero
+                            val isCorrectHighlight = state.esCorrecto == false && opcionNumero == pregunta.respuestaCorrecta
+                            val isWrong = state.esCorrecto == false && state.esCorrecto != null && state.mensajeRespuesta?.contains(opcionNumero.toString()) == true
+
+                            val brush = when {
+                                isCorrect || isCorrectHighlight -> Brush.horizontalGradient(listOf(Color(0xFF43A047), Color(0xFF66BB6A)))
+                                isWrong -> Brush.horizontalGradient(listOf(Color(0xFFD32F2F), Color(0xFFEF5350)))
+                                else -> Brush.horizontalGradient(listOf(MaterialTheme.colorScheme.primaryContainer, MaterialTheme.colorScheme.secondaryContainer))
                             }
 
-                            Button(
-                                onClick = { if (state.esCorrecto == null) onResponder(opcionNumero) },
+                            Surface(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .height(52.dp),
-                                shape = RoundedCornerShape(16.dp),
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = colorBase,
-                                    contentColor = if (state.esCorrecto != null) Color.White else MaterialTheme.colorScheme.onPrimaryContainer
-                                ),
-                                enabled = state.esCorrecto == null
+                                    .height(56.dp)
+                                    .clip(RoundedCornerShape(16.dp))
+                                    .clickable(enabled = state.esCorrecto == null) { onResponder(opcionNumero) },
+                                color = Color.Transparent,
+                                shadowElevation = 2.dp
                             ) {
-                                Text(text = opcion, fontSize = 15.sp, fontWeight = FontWeight.Medium)
+                                Box(
+                                    modifier = Modifier
+                                        .background(brush)
+                                        .fillMaxSize(),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        text = opcion,
+                                        style = MaterialTheme.typography.bodyLarge,
+                                        fontWeight = FontWeight.Bold,
+                                        color = if (state.esCorrecto != null) Color.White else MaterialTheme.colorScheme.onPrimaryContainer,
+                                        textAlign = TextAlign.Center,
+                                        modifier = Modifier.padding(horizontal = 16.dp)
+                                    )
+                                }
                             }
                         }
                     }
@@ -433,13 +449,13 @@ fun TriviaContent(
             text = {
                 Text(
                     "1. Tienes 3 vidas.\n" +
-                            "2. Las preguntas fáciles tienen 40s y las difíciles 30s.\n" +
-                            "3. Si fallas o el tiempo se agota, pierdes una vida.\n" +
-                            "4. ¡Completa todas para ganar medallas!"
+                            "2. Las preguntas fáciles tienen 20s y las difíciles 40s.\n" +
+                            "3. Si fallas o el tiempo se agota, pierdes una vida y permaneces en la pregunta para aprender.\n" +
+                            "4. ¡Completa las 10 preguntas para ganar la medalla!"
                 )
             },
             confirmButton = {
-                TextButton(onClick = onToggleAyuda) { Text("Entendido") }
+                TextButton(onClick = onToggleAyuda) { Text("¡Entendido!") }
             }
         )
     }
