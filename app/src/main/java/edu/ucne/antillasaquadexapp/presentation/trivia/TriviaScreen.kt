@@ -278,7 +278,7 @@ fun TriviaContent(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .padding(16.dp),
+                .padding(horizontal = 16.dp, vertical = 8.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Row(
@@ -292,28 +292,28 @@ fun TriviaContent(
                             imageVector = if (index < state.vidas) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
                             contentDescription = "Vida",
                             tint = if (index < state.vidas) Color.Red else Color.Gray,
-                            modifier = Modifier.size(32.dp)
+                            modifier = Modifier.size(28.dp)
                         )
                     }
                 }
 
-                val maxTiempo = if (state.preguntas.getOrNull(state.preguntaActualIndex)?.dificultad == Dificultad.DIFICIL) 30f else 40f
+                val maxTiempo = if (state.preguntas.getOrNull(state.preguntaActualIndex)?.dificultad == Dificultad.DIFICIL) 40f else 20f
                 Box(contentAlignment = Alignment.Center) {
                     CircularProgressIndicator(
                         progress = { state.tiempoRestante / maxTiempo },
-                        modifier = Modifier.size(50.dp),
-                        strokeWidth = 4.dp,
+                        modifier = Modifier.size(40.dp),
+                        strokeWidth = 3.dp,
                         color = if (state.tiempoRestante > 10) MaterialTheme.colorScheme.primary else Color.Red
                     )
                     Text(
                         text = state.tiempoRestante.toString(),
                         fontWeight = FontWeight.Bold,
-                        fontSize = 18.sp
+                        fontSize = 14.sp
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
             if (state.isLoading) {
                 Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
@@ -331,8 +331,9 @@ fun TriviaContent(
                     ) {
                         Column(
                             modifier = Modifier
-                                .padding(20.dp)
-                                .fillMaxSize(),
+                                .padding(16.dp)
+                                .fillMaxSize()
+                                .verticalScroll(rememberScrollState()),
                             horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.Center
                         ) {
@@ -341,12 +342,12 @@ fun TriviaContent(
                                     model = state.imagenEspecieUrl,
                                     contentDescription = "Especie",
                                     modifier = Modifier
-                                        .size(150.dp)
+                                        .size(120.dp)
                                         .clip(RoundedCornerShape(16.dp))
                                         .background(MaterialTheme.colorScheme.surfaceVariant),
                                     contentScale = ContentScale.Crop
                                 )
-                                Spacer(modifier = Modifier.height(16.dp))
+                                Spacer(modifier = Modifier.height(12.dp))
                             }
 
                             Text(
@@ -355,36 +356,37 @@ fun TriviaContent(
                                 color = MaterialTheme.colorScheme.secondary
                             )
 
-                            Spacer(modifier = Modifier.height(8.dp))
+                            Spacer(modifier = Modifier.height(4.dp))
 
                             Text(
                                 text = pregunta.enunciado,
-                                style = MaterialTheme.typography.headlineSmall,
+                                style = MaterialTheme.typography.titleLarge,
                                 fontWeight = FontWeight.Bold,
                                 textAlign = TextAlign.Center
                             )
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(24.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
 
                     Column(
                         modifier = Modifier.fillMaxWidth(),
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         pregunta.opciones.forEachIndexed { index, opcion ->
+                            val opcionNumero = index + 1
                             val colorBase = when {
-                                state.esCorrecto == true && pregunta.respuestaCorrecta == index -> Color(0xFF4CAF50)
-                                state.esCorrecto == false && index == pregunta.respuestaCorrecta -> Color(0xFF4CAF50)
-                                state.esCorrecto == false && state.mensajeRespuesta != null -> Color(0xFFE57373)
+                                state.esCorrecto == true && pregunta.respuestaCorrecta == opcionNumero -> Color(0xFF4CAF50)
+                                state.esCorrecto == false && opcionNumero == pregunta.respuestaCorrecta -> Color(0xFF4CAF50)
+                                state.esCorrecto == false && state.esCorrecto != null && state.mensajeRespuesta?.contains(opcionNumero.toString()) == true -> Color(0xFFE57373)
                                 else -> MaterialTheme.colorScheme.primaryContainer
                             }
 
                             Button(
-                                onClick = { if (state.esCorrecto == null) onResponder(index + 1) }, // Enviamos index + 1 (1 al 4)
+                                onClick = { if (state.esCorrecto == null) onResponder(opcionNumero) },
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .height(56.dp),
+                                    .height(52.dp),
                                 shape = RoundedCornerShape(16.dp),
                                 colors = ButtonDefaults.buttonColors(
                                     containerColor = colorBase,
@@ -392,12 +394,13 @@ fun TriviaContent(
                                 ),
                                 enabled = state.esCorrecto == null
                             ) {
-                                Text(text = opcion, fontSize = 16.sp, fontWeight = FontWeight.Medium)
+                                Text(text = opcion, fontSize = 15.sp, fontWeight = FontWeight.Medium)
                             }
                         }
                     }
                 }
             }
+            Spacer(modifier = Modifier.height(8.dp))
         }
     }
 
