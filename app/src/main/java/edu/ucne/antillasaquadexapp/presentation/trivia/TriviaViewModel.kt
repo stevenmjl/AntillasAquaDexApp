@@ -33,6 +33,7 @@ class TriviaViewModel @Inject constructor(
                     preguntaActualIndex = 0,
                     vidas = 3,
                     esCorrecto = null,
+                    respuestaSeleccionada = null,
                     mensajeRespuesta = null,
                     isPlaying = true
                 )
@@ -83,7 +84,7 @@ class TriviaViewModel @Inject constructor(
         val esCorrecta = pregunta.respuestaCorrecta == opcionSeleccionada
 
         if (esCorrecta) {
-            _state.update { it.copy(esCorrecto = true, mensajeRespuesta = "¡Correcto!") }
+            _state.update { it.copy(esCorrecto = true, respuestaSeleccionada = opcionSeleccionada, mensajeRespuesta = "¡Correcto!") }
             viewModelScope.launch {
                 delay(1200) 
                 avanzarPregunta()
@@ -92,7 +93,8 @@ class TriviaViewModel @Inject constructor(
             _state.update { 
                 it.copy(
                     esCorrecto = false, 
-                    mensajeRespuesta = "Incorrecto. Era la opción ${pregunta.respuestaCorrecta}" 
+                    respuestaSeleccionada = opcionSeleccionada,
+                    mensajeRespuesta = "Incorrecto." 
                 ) 
             }
             viewModelScope.launch {
@@ -108,6 +110,7 @@ class TriviaViewModel @Inject constructor(
                 it.copy(
                     preguntaActualIndex = it.preguntaActualIndex + 1,
                     esCorrecto = null,
+                    respuestaSeleccionada = null,
                     mensajeRespuesta = null
                 ) 
             }
@@ -136,6 +139,7 @@ class TriviaViewModel @Inject constructor(
                 it.copy(
                     vidas = nuevasVidas, 
                     esCorrecto = null, 
+                    respuestaSeleccionada = null,
                     mensajeRespuesta = null
                 ) 
             }
@@ -175,6 +179,7 @@ class TriviaViewModel @Inject constructor(
                 preguntas = emptyList(), 
                 mostrarConfirmacionSalir = false,
                 esCorrecto = null,
+                respuestaSeleccionada = null,
                 mensajeRespuesta = null
             ) 
         }

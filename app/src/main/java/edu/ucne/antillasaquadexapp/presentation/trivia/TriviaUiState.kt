@@ -17,5 +17,6 @@ data class TriviaUiState(
     val mostrarConfirmacionSalir: Boolean = false,
     val mensajeRespuesta: String? = null,
     val esCorrecto: Boolean? = null,
+    val respuestaSeleccionada: Int? = null,
     val imagenEspecieUrl: String? = null
 )

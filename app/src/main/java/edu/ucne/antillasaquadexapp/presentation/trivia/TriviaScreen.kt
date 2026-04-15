@@ -378,11 +378,10 @@ fun TriviaContent(
                         pregunta.opciones.forEachIndexed { index, opcion ->
                             val opcionNumero = index + 1
                             val isCorrect = state.esCorrecto == true && pregunta.respuestaCorrecta == opcionNumero
-                            val isCorrectHighlight = state.esCorrecto == false && opcionNumero == pregunta.respuestaCorrecta
-                            val isWrong = state.esCorrecto == false && state.esCorrecto != null && state.mensajeRespuesta?.contains(opcionNumero.toString()) == true
+                            val isWrong = state.esCorrecto == false && state.respuestaSeleccionada == opcionNumero
 
                             val brush = when {
-                                isCorrect || isCorrectHighlight -> Brush.horizontalGradient(listOf(Color(0xFF43A047), Color(0xFF66BB6A)))
+                                isCorrect -> Brush.horizontalGradient(listOf(Color(0xFF43A047), Color(0xFF66BB6A)))
                                 isWrong -> Brush.horizontalGradient(listOf(Color(0xFFD32F2F), Color(0xFFEF5350)))
                                 else -> Brush.horizontalGradient(listOf(MaterialTheme.colorScheme.primaryContainer, MaterialTheme.colorScheme.secondaryContainer))
                             }
