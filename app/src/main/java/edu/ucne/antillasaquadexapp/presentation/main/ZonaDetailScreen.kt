@@ -17,19 +17,25 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Air
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.WaterDrop
 import androidx.compose.material.icons.filled.WbSunny
+import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -47,6 +53,7 @@ import edu.ucne.antillasaquadexapp.domain.model.Clima
 import edu.ucne.antillasaquadexapp.domain.model.Especie
 import edu.ucne.antillasaquadexapp.presentation.clima.ClimaUiState
 import edu.ucne.antillasaquadexapp.presentation.clima.ClimaViewModel
+import edu.ucne.antillasaquadexapp.presentation.components.AquaDexTopBar
 import edu.ucne.antillasaquadexapp.presentation.especies.list.EspecieListUiState
 import edu.ucne.antillasaquadexapp.presentation.especies.list.EspecieListViewModel
 import edu.ucne.antillasaquadexapp.ui.theme.AntillasAquaDexAppTheme
@@ -93,13 +100,9 @@ fun ZonaDetailContent(
 ) {
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text(zoneName) },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Atrás")
-                    }
-                }
+            AquaDexTopBar(
+                title = zoneName,
+                onNavigateBack = onNavigateBack
             )
         }
     ) { padding ->
@@ -150,16 +153,27 @@ fun ZonaDetailContent(
 
 @Composable
 fun ClimaCard(state: ClimaUiState) {
-    Card(
+    ElevatedCard(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        colors = CardDefaults.elevatedCardColors(
+            containerColor = MaterialTheme.colorScheme.secondaryContainer
+        ),
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp),
+        shape = MaterialTheme.shapes.extraLarge
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
+        Column(
+            modifier = Modifier.padding(20.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = "Condiciones climáticas",
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.7f),
+                modifier = Modifier.padding(bottom = 12.dp)
+            )
+
             if (state.isLoading) {
-                Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator(modifier = Modifier.size(24.dp))
-                }
+                CircularProgressIndicator(modifier = Modifier.size(24.dp))
             } else if (state.error != null) {
                 Text(text = "Clima no disponible", color = MaterialTheme.colorScheme.error)
             } else if (state.clima != null) {
@@ -168,50 +182,34 @@ fun ClimaCard(state: ClimaUiState) {
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceAround
                 ) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Icon(
-                            imageVector = Icons.Default.WbSunny, 
-                            contentDescription = null, 
-                            modifier = Modifier.size(32.dp),
-                            tint = MaterialTheme.colorScheme.primary
-                        )
-                        Text(text = state.clima.condicion, style = MaterialTheme.typography.labelMedium)
-                        Text(
-                            text = "${state.clima.temperatura.toInt()}°C", 
-                            style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
+                    WeatherItem(
+                        icon = Icons.Default.WbSunny,
+                        label = state.clima.condicion,
+                        value = "${state.clima.temperatura.toInt()}°C",
+                        isPrimary = true
+                    )
+                    
+                    VerticalDivider(
+                        modifier = Modifier.height(40.dp),
+                        color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.2f)
+                    )
 
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Icon(
-                            imageVector = Icons.Default.Air, 
-                            contentDescription = null, 
-                            modifier = Modifier.size(32.dp),
-                            tint = MaterialTheme.colorScheme.primary
-                        )
-                        Text(text = "Viento", style = MaterialTheme.typography.labelMedium)
-                        Text(
-                            text = "${state.clima.vientoVelocidad.toInt()} km/h", 
-                            style = MaterialTheme.typography.bodyLarge,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
+                    WeatherItem(
+                        icon = Icons.Default.Air,
+                        label = "Viento",
+                        value = "${state.clima.vientoVelocidad.toInt()} km/h"
+                    )
 
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Icon(
-                            imageVector = Icons.Default.WaterDrop, 
-                            contentDescription = null, 
-                            modifier = Modifier.size(32.dp),
-                            tint = MaterialTheme.colorScheme.primary
-                        )
-                        Text(text = "Humedad", style = MaterialTheme.typography.labelMedium)
-                        Text(
-                            text = "${state.clima.humedad}%", 
-                            style = MaterialTheme.typography.bodyLarge,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
+                    VerticalDivider(
+                        modifier = Modifier.height(40.dp),
+                        color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.2f)
+                    )
+
+                    WeatherItem(
+                        icon = Icons.Default.WaterDrop,
+                        label = "Humedad",
+                        value = "${state.clima.humedad}%"
+                    )
                 }
             }
         }
@@ -219,16 +217,45 @@ fun ClimaCard(state: ClimaUiState) {
 }
 
 @Composable
+fun WeatherItem(
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    label: String,
+    value: String,
+    isPrimary: Boolean = false
+) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            modifier = Modifier.size(if (isPrimary) 32.dp else 24.dp),
+            tint = if (isPrimary) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSecondaryContainer
+        )
+        Text(
+            text = label, 
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSecondaryContainer
+        )
+        Text(
+            text = value,
+            style = if (isPrimary) MaterialTheme.typography.titleLarge else MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onSecondaryContainer
+        )
+    }
+}
+
+@Composable
 fun EspecieZonaCard(especie: Especie, onClick: () -> Unit) {
-    Card(
+    ElevatedCard(
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onClick() },
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        shape = MaterialTheme.shapes.extraLarge,
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp)
     ) {
         Row(
             modifier = Modifier
-                .padding(12.dp)
+                .padding(16.dp)
                 .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -237,20 +264,34 @@ fun EspecieZonaCard(especie: Especie, onClick: () -> Unit) {
                 contentDescription = especie.nombre,
                 modifier = Modifier
                     .size(80.dp)
-                    .clip(MaterialTheme.shapes.medium),
+                    .clip(MaterialTheme.shapes.large),
                 contentScale = ContentScale.Crop
             )
             Spacer(modifier = Modifier.width(16.dp))
-            Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
+            Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = especie.nombre,
-                    style = MaterialTheme.typography.titleMedium,
+                    style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold
                 )
                 Text(
-                    text = "Ver detalle >",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.primary
+                    text = especie.nombreCientifico,
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontStyle = androidx.compose.ui.text.font.FontStyle.Italic,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                
+                AssistChip(
+                    onClick = { onClick() },
+                    label = { Text("Ver más") },
+                    modifier = Modifier.padding(top = 8.dp),
+                    trailingIcon = {
+                        Icon(
+                            imageVector = Icons.Default.ChevronRight,
+                            contentDescription = null,
+                            modifier = Modifier.size(16.dp)
+                        )
+                    }
                 )
             }
         }

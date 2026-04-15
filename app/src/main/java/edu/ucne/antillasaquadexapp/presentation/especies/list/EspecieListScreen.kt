@@ -7,6 +7,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
@@ -24,6 +25,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import edu.ucne.antillasaquadexapp.domain.model.Especie
+import edu.ucne.antillasaquadexapp.presentation.components.AquaDexTopBar
 import edu.ucne.antillasaquadexapp.ui.theme.AntillasAquaDexAppTheme
 
 @Composable
@@ -56,7 +58,7 @@ fun EspecieListContent(
     Scaffold(
         topBar = {
             Column {
-                CenterAlignedTopAppBar(title = { Text("Enciclopedia marina") })
+                AquaDexTopBar(title = "Enciclopedia marina")
                 SearchBar(
                     query = state.busqueda,
                     onQueryChange = onBusquedaChange,
@@ -119,7 +121,7 @@ fun SearchBar(
     onQueryChange: (String) -> Unit,
     onClear: () -> Unit
 ) {
-    OutlinedTextField(
+    TextField(
         value = query,
         onValueChange = onQueryChange,
         modifier = Modifier
@@ -135,7 +137,12 @@ fun SearchBar(
             }
         },
         singleLine = true,
-        shape = MaterialTheme.shapes.medium
+        shape = MaterialTheme.shapes.extraLarge,
+        colors = TextFieldDefaults.colors(
+            focusedIndicatorColor = androidx.compose.ui.graphics.Color.Transparent,
+            unfocusedIndicatorColor = androidx.compose.ui.graphics.Color.Transparent,
+            disabledIndicatorColor = androidx.compose.ui.graphics.Color.Transparent
+        )
     )
 }
 
@@ -155,7 +162,21 @@ fun FilterChips(
             FilterChip(
                 selected = selectedType == tipo,
                 onClick = { onTypeSelected(tipo) },
-                label = { Text(tipo.descripcion) }
+                label = { Text(tipo.descripcion) },
+                leadingIcon = if (selectedType == tipo) {
+                    {
+                        Icon(
+                            imageVector = Icons.Default.Check,
+                            contentDescription = null,
+                            modifier = Modifier.size(FilterChipDefaults.IconSize)
+                        )
+                    }
+                } else null,
+                colors = FilterChipDefaults.filterChipColors(
+                    selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                    selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                    selectedLeadingIconColor = MaterialTheme.colorScheme.onPrimaryContainer
+                )
             )
         }
     }
@@ -163,11 +184,11 @@ fun FilterChips(
 
 @Composable
 fun EspecieListItem(especie: Especie, onClick: () -> Unit) {
-    Card(
+    ElevatedCard(
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onClick() },
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp)
     ) {
         Row(
             modifier = Modifier

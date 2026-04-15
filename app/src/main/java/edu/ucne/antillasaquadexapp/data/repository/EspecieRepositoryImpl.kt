@@ -36,9 +36,10 @@ class EspecieRepositoryImpl @Inject constructor(
             var page = 1
             var hayMasEspecies = true
             val maxRetries = 10
-            val totalPaginas = 4 
+            // Intentamos obtener el total real si es posible, o usamos un estimado para la barra de progreso
+            val totalPaginasEstimadas = 5 
             
-            while (hayMasEspecies && page <= totalPaginas) {
+            while (hayMasEspecies) {
                 var attempt = 0
                 var success = false
                 var lastError = ""
@@ -58,7 +59,10 @@ class EspecieRepositoryImpl @Inject constructor(
                                 imageLoader.enqueue(request)
                             }
 
-                            val progreso = (page * 100) / totalPaginas
+                            val progreso = if (page <= totalPaginasEstimadas) 
+                                (page * 100) / totalPaginasEstimadas 
+                            else 99
+                            
                             emit(Resource.Loading(progreso))
                             page++
                         } else {
@@ -69,7 +73,7 @@ class EspecieRepositoryImpl @Inject constructor(
                         attempt++
                         lastError = e.localizedMessage ?: "Error desconocido"
                         if (attempt < maxRetries) {
-                            delay(5000) // Esperar 5 segundos entre reintentos para dar tiempo a Azure
+                            delay(5000)
                         }
                     }
                 }
@@ -82,6 +86,39 @@ class EspecieRepositoryImpl @Inject constructor(
             emit(Resource.Success(100))
         } catch (e: Exception) {
             emit(Resource.Error("Error al sincronizar: ${e.localizedMessage}"))
+        }
+    }
+
+    override suspend fun sincronizarNuevasEspecies() {
+        try {
+            var page = 1
+            var hayMasEspecies = true
+            
+            while (hayMasEspecies) {
+                try {
+                    val remoteEspecies = api.getEspecies(page)
+                    if (remoteEspecies.isNotEmpty()) {
+                        val entities = remoteEspecies.map { it.toDomain().toEntity() }
+                        especieDao.upsertAll(entities)
+                        
+                        // Precarga silenciosa de imágenes
+                        remoteEspecies.forEach { dto ->
+                            val request = ImageRequest.Builder(context)
+                                .data(dto.imagenUrl ?: "")
+                                .build()
+                            imageLoader.enqueue(request)
+                        }
+                        page++
+                    } else {
+                        hayMasEspecies = false
+                    }
+                } catch (e: Exception) {
+                    // En segundo plano fallamos silenciosamente o registramos el error
+                    hayMasEspecies = false
+                }
+            }
+        } catch (e: Exception) {
+            // Error general en segundo plano ignorado para no molestar al usuario
         }
     }
 
@@ -106,9 +143,10 @@ class EspecieRepositoryImpl @Inject constructor(
             favoritoDao.getAll(),
             especieDao.getAll()
         ) { favorites, allSpecies ->
-            val favIds = favorites.map { it.especieId }.toSet()
-            allSpecies.filter { favIds.contains(it.especieId) }
+            val favMap = favorites.associateBy { it.especieId }
+            allSpecies.filter { favMap.containsKey(it.especieId) }
                 .map { it.toDomain(true) }
+                .sortedBy { favMap[it.especieId]?.orden ?: 0 }
         }
     }
 
@@ -119,12 +157,20 @@ class EspecieRepositoryImpl @Inject constructor(
         } else {
             val count = favoritoDao.getCount()
             if (count < 20) {
-                favoritoDao.insert(FavoritoEntity(especieId))
+                val maxOrden = favoritoDao.getMaxOrden() ?: -1
+                favoritoDao.insert(FavoritoEntity(especieId, maxOrden + 1))
                 ToggleResultado.Agregado(count + 1)
             } else {
                 ToggleResultado.LimiteAlcanzado
             }
         }
+    }
+
+    override suspend fun reordenarFavoritos(nuevaLista: List<Especie>) {
+        val entities = nuevaLista.mapIndexed { index, especie ->
+            FavoritoEntity(especie.especieId, index)
+        }
+        favoritoDao.updateAll(entities)
     }
 
     override suspend fun getFavoritosCount(): Int {

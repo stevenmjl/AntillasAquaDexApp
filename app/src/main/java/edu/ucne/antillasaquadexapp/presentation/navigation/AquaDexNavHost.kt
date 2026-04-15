@@ -42,16 +42,15 @@ fun AquaDexNavHost(
                 val args = navBackStackEntry?.toRoute<Screen.ZonaDetalle>()
                 args?.let { audioManager.playMusic(it.musicaResId) }
             }
-            // Si entramos a Favoritos o Perfil suena la música principal
+            // Si entramos a Favoritos suena la música principal
             currentRoute?.contains("Favoritos") == true ||
-            currentRoute?.contains("Perfil") == true ||
             currentRoute?.contains("Bienvenida") == true -> {
                 audioManager.playMusic(R.raw.musica_principal)
             }
             currentRoute?.contains("Trivia") == true -> {
                 audioManager.playMusic(R.raw.musica_trivia)
             }
-            // Para Mapa, PaisDetalle, EspecieLista, EspecieDetalle no se hace nada
+            // Para Mapa, PaisDetalle, EspecieLista, EspecieDetalle y Perfil, no se hace nada
         }
     }
 

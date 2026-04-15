@@ -9,9 +9,11 @@ interface EspecieRepository {
     suspend fun getEspecieById(id: Int): Resource<Especie>
     fun getFavoritos(): Flow<List<Especie>>
     suspend fun toggleFavorito(especieId: Int): ToggleResultado
+    suspend fun reordenarFavoritos(nuevaLista: List<Especie>)
     suspend fun esFavorito(especieId: Int): Boolean
     suspend fun getFavoritosCount(): Int
     suspend fun sincronizarEspecies(): Flow<Resource<Int>>
+    suspend fun sincronizarNuevasEspecies()
     fun esSyncCompletada(): Flow<Boolean>
 }
 

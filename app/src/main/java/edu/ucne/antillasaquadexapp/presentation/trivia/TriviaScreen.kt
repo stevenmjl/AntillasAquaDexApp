@@ -1,16 +1,18 @@
 package edu.ucne.antillasaquadexapp.presentation.trivia
 
+import android.content.res.Configuration
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
+import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -20,24 +22,32 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import edu.ucne.antillasaquadexapp.R
 import edu.ucne.antillasaquadexapp.data.local.model.Dificultad
 import edu.ucne.antillasaquadexapp.data.local.model.PreguntaTrivia
+import edu.ucne.antillasaquadexapp.presentation.components.AquaDexTopBar
+import edu.ucne.antillasaquadexapp.presentation.usuario.UsuarioViewModel
 import edu.ucne.antillasaquadexapp.ui.theme.AntillasAquaDexAppTheme
 
 @Composable
 fun TriviaScreen(
     onNavigateBack: () -> Unit,
-    viewModel: TriviaViewModel = hiltViewModel()
+    viewModel: TriviaViewModel = hiltViewModel(),
+    usuarioViewModel: UsuarioViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsState()
+    val usuarioState by usuarioViewModel.state.collectAsStateWithLifecycle()
 
     if (state.isPlaying) {
         TriviaContent(
@@ -50,6 +60,7 @@ fun TriviaScreen(
         )
     } else {
         TriviaMenu(
+            nombreUsuario = usuarioState.nombre,
             onCategorySelected = { viewModel.iniciarTrivia(it) }
         )
     }
@@ -58,24 +69,24 @@ fun TriviaScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TriviaMenu(
+    nombreUsuario: String,
     onCategorySelected: (String) -> Unit
 ) {
     Scaffold(
         topBar = {
-            CenterAlignedTopAppBar(
-                title = { Text("Zona de Trivia", fontWeight = FontWeight.Bold) }
-            )
+            AquaDexTopBar(title = "Zona de Trivia")
         }
     ) { padding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
+                .verticalScroll(rememberScrollState())
         ) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .fillMaxHeight(0.35f)
+                    .height(260.dp)
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.img_trivia),
@@ -91,7 +102,7 @@ fun TriviaMenu(
                             Brush.verticalGradient(
                                 colors = listOf(
                                     Color.Transparent,
-                                    Color.Black.copy(alpha = 0.7f)
+                                    Color.Black.copy(alpha = 0.8f)
                                 )
                             )
                         )
@@ -100,7 +111,7 @@ fun TriviaMenu(
                 Column(
                     modifier = Modifier
                         .align(Alignment.BottomStart)
-                        .padding(16.dp)
+                        .padding(20.dp)
                 ) {
                     Text(
                         text = "¡Pon a prueba tus conocimientos!",
@@ -108,9 +119,9 @@ fun TriviaMenu(
                         fontWeight = FontWeight.Bold,
                         color = Color.White
                     )
-                    Spacer(modifier = Modifier.height(4.dp))
+                    Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = "Aprende sobre la vida marina del Caribe. Gana medallas y desbloquea logros.",
+                        text = "Aprende sobre la vida marina del Caribe y gana medallas exclusivas.",
                         style = MaterialTheme.typography.bodyMedium,
                         color = Color.White.copy(alpha = 0.9f)
                     )
@@ -119,34 +130,46 @@ fun TriviaMenu(
 
             Column(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp)
+                    .padding(20.dp)
             ) {
+                val saludoText = buildAnnotatedString {
+                    append("Selecciona una categoría, ")
+                    withStyle(style = SpanStyle(
+                        color = MaterialTheme.colorScheme.primary,
+                        fontWeight = FontWeight.Bold
+                    )) {
+                        append(if (nombreUsuario.isBlank()) "Explorador" else nombreUsuario)
+                    }
+                    append(".")
+                }
+
                 Text(
-                    text = "Selecciona una Categoría",
-                    style = MaterialTheme.typography.titleMedium,
+                    text = saludoText,
+                    style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.SemiBold
                 )
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(20.dp))
 
                 val categorias = listOf(
-                    TriviaCategoria("PECES", "Explora el mundo de los peces del Caribe", Icons.Default.SetMeal, Color(0xFF4FC3F7), R.drawable.img_medalla_peces),
-                    TriviaCategoria("PLANTAS", "Próximamente", Icons.Default.Park, Color(0xFF81C784), habilitada = false),
-                    TriviaCategoria("AVES", "Próximamente", Icons.Default.AirplanemodeActive, Color(0xFFFFB74D), habilitada = false)
+                    TriviaCategoria("PECES", "Peces óseos y cartilaginosos", Icons.Default.SetMeal, Color(0xFF4FC3F7), R.drawable.img_medalla_peces),
+                    TriviaCategoria("MAMÍFEROS", "Delfines, manatíes y ballenas", Icons.Default.Pets, Color(0xFF64B5F6), R.drawable.img_medalla_mamiferos),
+                    TriviaCategoria("AVES", "Aves costeras y marinas", Icons.Default.Flight, Color(0xFFFFD54F), R.drawable.img_medalla_aves),
+                    TriviaCategoria("PLANTAS", "Manglares y flora marina", Icons.Default.Eco, Color(0xFF81C784), R.drawable.img_medalla_plantas),
+                    TriviaCategoria("MOLUSCOS", "Caracoles, pulpos y bivalvos", Icons.Default.BakeryDining, Color(0xFFBA68C8), R.drawable.img_medalla_moluscos),
+                    TriviaCategoria("REPTILES", "Tortugas y reptiles marinos", Icons.Default.WbSunny, Color(0xFFFF8A65), R.drawable.img_medalla_reptiles),
+                    TriviaCategoria("CNIDARIOS", "Corales, medusas y anémonas", Icons.Default.Waves, Color(0xFF4DB6AC), R.drawable.img_medalla_cnidarios),
+                    TriviaCategoria("PORÍFEROS", "Esponjas de mar", Icons.Default.BubbleChart, Color(0xFF90A4AE), R.drawable.img_medalla_poliferos),
+                    TriviaCategoria("CRUSTÁCEOS", "Langostas, cangrejos y camarones", Icons.Default.Tsunami, Color(0xFFE57373), R.drawable.img_medalla_crustaceos),
+                    TriviaCategoria("EQUINODERMOS", "Estrellas y erizos de mar", Icons.Default.Star, Color(0xFFFFF176), R.drawable.img_medalla_equinodermos)
                 )
 
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(2),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    items(categorias) { categoria ->
-                        CategoryCard(
-                            categoria = categoria,
-                            onClick = { if (categoria.habilitada) onCategorySelected(categoria.nombre) }
-                        )
-                    }
+                categorias.forEach { categoria ->
+                    CategoryCard(
+                        categoria = categoria,
+                        onClick = { if (categoria.habilitada) onCategorySelected(categoria.nombre) }
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
                 }
             }
         }
@@ -164,64 +187,67 @@ data class TriviaCategoria(
 
 @Composable
 fun CategoryCard(categoria: TriviaCategoria, onClick: () -> Unit) {
-    Card(
+    ElevatedCard(
         modifier = Modifier
             .fillMaxWidth()
-            .aspectRatio(0.8f)
             .clickable(enabled = categoria.habilitada) { onClick() },
-        shape = RoundedCornerShape(20.dp),
-        elevation = CardDefaults.cardElevation(4.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = if (categoria.habilitada) Color.White else Color.LightGray.copy(alpha = 0.5f)
+        shape = MaterialTheme.shapes.extraLarge,
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp),
+        colors = CardDefaults.elevatedCardColors(
+            containerColor = if (categoria.habilitada) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
         )
     ) {
-        Column(
+        Row(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+                .fillMaxWidth()
+                .padding(20.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Box(
-                modifier = Modifier
-                    .size(60.dp)
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(categoria.color.copy(alpha = 0.2f)),
-                contentAlignment = Alignment.Center
+            Surface(
+                modifier = Modifier.size(70.dp),
+                shape = CircleShape,
+                color = categoria.color.copy(alpha = 0.15f)
             ) {
-                if (categoria.medallaResId != null) {
-                    Image(
-                        painter = painterResource(id = categoria.medallaResId),
-                        contentDescription = null,
-                        modifier = Modifier.size(50.dp)
-                    )
-                } else {
-                    Icon(
-                        imageVector = categoria.icono,
-                        contentDescription = null,
-                        tint = categoria.color,
-                        modifier = Modifier.size(32.dp)
-                    )
+                Box(contentAlignment = Alignment.Center) {
+                    if (categoria.medallaResId != null) {
+                        Image(
+                            painter = painterResource(id = categoria.medallaResId),
+                            contentDescription = null,
+                            modifier = Modifier.size(50.dp)
+                        )
+                    } else {
+                        Icon(
+                            imageVector = categoria.icono,
+                            contentDescription = null,
+                            tint = categoria.color,
+                            modifier = Modifier.size(32.dp)
+                        )
+                    }
                 }
             }
             
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.width(20.dp))
             
-            Text(
-                text = categoria.nombre,
-                fontWeight = FontWeight.Bold,
-                style = MaterialTheme.typography.titleMedium,
-                textAlign = TextAlign.Center
-            )
-            
-            Spacer(modifier = Modifier.height(4.dp))
-            
-            Text(
-                text = categoria.descripcion,
-                style = MaterialTheme.typography.bodySmall,
-                textAlign = TextAlign.Center,
-                color = Color.Gray
-            )
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = categoria.nombre,
+                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.titleLarge
+                )
+                Text(
+                    text = categoria.descripcion,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+
+            if (categoria.habilitada) {
+                Icon(
+                    imageVector = Icons.Default.ChevronRight,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            }
         }
     }
 }
@@ -237,14 +263,11 @@ fun TriviaContent(
     onCancelarSalir: () -> Unit
 ) {
     Scaffold(
+        containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp),
         topBar = {
-            CenterAlignedTopAppBar(
-                title = { Text("Trivia: ${state.categoria}", fontWeight = FontWeight.Bold) },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Volver")
-                    }
-                },
+            AquaDexTopBar(
+                title = "Trivia: ${state.categoria}",
+                onNavigateBack = onNavigateBack,
                 actions = {
                     IconButton(onClick = onToggleAyuda) {
                         Icon(Icons.Default.HelpOutline, contentDescription = "Ayuda")
@@ -257,7 +280,7 @@ fun TriviaContent(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .padding(16.dp),
+                .padding(horizontal = 16.dp, vertical = 8.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Row(
@@ -271,28 +294,28 @@ fun TriviaContent(
                             imageVector = if (index < state.vidas) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
                             contentDescription = "Vida",
                             tint = if (index < state.vidas) Color.Red else Color.Gray,
-                            modifier = Modifier.size(32.dp)
+                            modifier = Modifier.size(28.dp)
                         )
                     }
                 }
 
-                val maxTiempo = if (state.preguntas.getOrNull(state.preguntaActualIndex)?.dificultad == Dificultad.DIFICIL) 30f else 40f
+                val maxTiempo = if (state.preguntas.getOrNull(state.preguntaActualIndex)?.dificultad == Dificultad.DIFICIL) 40f else 20f
                 Box(contentAlignment = Alignment.Center) {
                     CircularProgressIndicator(
                         progress = { state.tiempoRestante / maxTiempo },
-                        modifier = Modifier.size(50.dp),
-                        strokeWidth = 4.dp,
+                        modifier = Modifier.size(40.dp),
+                        strokeWidth = 3.dp,
                         color = if (state.tiempoRestante > 10) MaterialTheme.colorScheme.primary else Color.Red
                     )
                     Text(
                         text = state.tiempoRestante.toString(),
                         fontWeight = FontWeight.Bold,
-                        fontSize = 18.sp
+                        fontSize = 14.sp
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
             if (state.isLoading) {
                 Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
@@ -310,8 +333,9 @@ fun TriviaContent(
                     ) {
                         Column(
                             modifier = Modifier
-                                .padding(20.dp)
-                                .fillMaxSize(),
+                                .padding(16.dp)
+                                .fillMaxSize()
+                                .verticalScroll(rememberScrollState()),
                             horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.Center
                         ) {
@@ -320,12 +344,12 @@ fun TriviaContent(
                                     model = state.imagenEspecieUrl,
                                     contentDescription = "Especie",
                                     modifier = Modifier
-                                        .size(150.dp)
+                                        .size(120.dp)
                                         .clip(RoundedCornerShape(16.dp))
                                         .background(MaterialTheme.colorScheme.surfaceVariant),
                                     contentScale = ContentScale.Crop
                                 )
-                                Spacer(modifier = Modifier.height(16.dp))
+                                Spacer(modifier = Modifier.height(12.dp))
                             }
 
                             Text(
@@ -334,49 +358,64 @@ fun TriviaContent(
                                 color = MaterialTheme.colorScheme.secondary
                             )
 
-                            Spacer(modifier = Modifier.height(8.dp))
+                            Spacer(modifier = Modifier.height(4.dp))
 
                             Text(
                                 text = pregunta.enunciado,
-                                style = MaterialTheme.typography.headlineSmall,
+                                style = MaterialTheme.typography.titleLarge,
                                 fontWeight = FontWeight.Bold,
                                 textAlign = TextAlign.Center
                             )
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(24.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
 
                     Column(
                         modifier = Modifier.fillMaxWidth(),
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                        verticalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
                         pregunta.opciones.forEachIndexed { index, opcion ->
-                            val colorBase = when {
-                                state.esCorrecto == true && pregunta.respuestaCorrecta == index -> Color(0xFF4CAF50)
-                                state.esCorrecto == false && index == pregunta.respuestaCorrecta -> Color(0xFF4CAF50)
-                                state.esCorrecto == false && state.mensajeRespuesta != null -> Color(0xFFE57373)
-                                else -> MaterialTheme.colorScheme.primaryContainer
+                            val opcionNumero = index + 1
+                            val isCorrect = state.esCorrecto == true && pregunta.respuestaCorrecta == opcionNumero
+                            val isWrong = state.esCorrecto == false && state.respuestaSeleccionada == opcionNumero
+
+                            val brush = when {
+                                isCorrect -> Brush.horizontalGradient(listOf(Color(0xFF43A047), Color(0xFF66BB6A)))
+                                isWrong -> Brush.horizontalGradient(listOf(Color(0xFFD32F2F), Color(0xFFEF5350)))
+                                else -> Brush.horizontalGradient(listOf(MaterialTheme.colorScheme.primaryContainer, MaterialTheme.colorScheme.secondaryContainer))
                             }
 
-                            Button(
-                                onClick = { if (state.esCorrecto == null) onResponder(index) },
+                            Surface(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .height(56.dp),
-                                shape = RoundedCornerShape(16.dp),
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = colorBase,
-                                    contentColor = if (state.esCorrecto != null) Color.White else MaterialTheme.colorScheme.onPrimaryContainer
-                                ),
-                                enabled = state.esCorrecto == null
+                                    .height(56.dp)
+                                    .clip(RoundedCornerShape(16.dp))
+                                    .clickable(enabled = state.esCorrecto == null) { onResponder(opcionNumero) },
+                                color = Color.Transparent,
+                                shadowElevation = 2.dp
                             ) {
-                                Text(text = opcion, fontSize = 16.sp, fontWeight = FontWeight.Medium)
+                                Box(
+                                    modifier = Modifier
+                                        .background(brush)
+                                        .fillMaxSize(),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        text = opcion,
+                                        style = MaterialTheme.typography.bodyLarge,
+                                        fontWeight = FontWeight.Bold,
+                                        color = if (state.esCorrecto != null) Color.White else MaterialTheme.colorScheme.onPrimaryContainer,
+                                        textAlign = TextAlign.Center,
+                                        modifier = Modifier.padding(horizontal = 16.dp)
+                                    )
+                                }
                             }
                         }
                     }
                 }
             }
+            Spacer(modifier = Modifier.height(8.dp))
         }
     }
 
@@ -409,13 +448,13 @@ fun TriviaContent(
             text = {
                 Text(
                     "1. Tienes 3 vidas.\n" +
-                            "2. Las preguntas fáciles tienen 40s y las difíciles 30s.\n" +
-                            "3. Si fallas o el tiempo se agota, pierdes una vida.\n" +
-                            "4. ¡Completa todas para ganar medallas!"
+                            "2. Las preguntas fáciles tienen 20s y las difíciles 40s.\n" +
+                            "3. Si fallas o el tiempo se agota, pierdes una vida y permaneces en la pregunta para aprender.\n" +
+                            "4. ¡Completa las 10 preguntas para ganar la medalla!"
                 )
             },
             confirmButton = {
-                TextButton(onClick = onToggleAyuda) { Text("Entendido") }
+                TextButton(onClick = onToggleAyuda) { Text("¡Entendido!") }
             }
         )
     }
@@ -442,7 +481,7 @@ fun TriviaContent(
 @Composable
 fun TriviaMenuPreview() {
     AntillasAquaDexAppTheme {
-        TriviaMenu(onCategorySelected = {})
+        TriviaMenu(nombreUsuario = "Pedro", onCategorySelected = {})
     }
 }
 

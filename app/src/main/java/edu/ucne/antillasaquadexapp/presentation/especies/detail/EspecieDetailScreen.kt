@@ -18,35 +18,19 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Balance
-import androidx.compose.material.icons.filled.Egg
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.FavoriteBorder
-import androidx.compose.material.icons.filled.Group
-import androidx.compose.material.icons.filled.PriorityHigh
-import androidx.compose.material.icons.filled.Restaurant
-import androidx.compose.material.icons.filled.Straighten
-import androidx.compose.material.icons.filled.Timer
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
@@ -59,6 +43,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import edu.ucne.antillasaquadexapp.domain.model.Especie
+import edu.ucne.antillasaquadexapp.presentation.components.AquaDexTopBar
 import edu.ucne.antillasaquadexapp.ui.theme.AntillasAquaDexAppTheme
 import java.text.DecimalFormat
 import java.text.DecimalFormatSymbols
@@ -92,13 +77,9 @@ fun EspecieDetailContent(
 ) {
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text("Detalle de especie") },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Atrás")
-                    }
-                }
+            AquaDexTopBar(
+                title = "Detalle de especie",
+                onNavigateBack = onNavigateBack
             )
         }
     ) { padding ->
@@ -127,7 +108,8 @@ fun EspecieDetailContent(
                             contentDescription = especie.nombre,
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(300.dp),
+                                .height(300.dp)
+                                .clip(RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp)),
                             contentScale = ContentScale.Crop
                         )
 
@@ -174,12 +156,13 @@ fun EspecieDetailContent(
                                 text = "Datos interesantes",
                                 style = MaterialTheme.typography.titleLarge,
                                 fontWeight = FontWeight.Bold,
-                                modifier = Modifier.padding(bottom = 8.dp)
+                                modifier = Modifier.padding(bottom = 12.dp)
                             )
 
-                            Card(
+                            ElevatedCard(
                                 modifier = Modifier.fillMaxWidth(),
-                                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+                                shape = MaterialTheme.shapes.extraLarge,
+                                elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp)
                             ) {
                                 Column(modifier = Modifier.padding(16.dp)) {
                                     val longitudTexto = if (especie.longitudCm >= 100) {
@@ -195,11 +178,17 @@ fun EspecieDetailContent(
                                     }
 
                                     InfoRow(icon = Icons.Default.Straighten, label = "Longitud", value = longitudTexto)
+                                    HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp), thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant)
                                     InfoRow(icon = Icons.Default.Balance, label = "Peso", value = pesoTexto)
+                                    HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp), thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant)
                                     InfoRow(icon = Icons.Default.Restaurant, label = "Dieta", value = especie.dieta)
+                                    HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp), thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant)
                                     InfoRow(icon = Icons.Default.Group, label = "Grupo", value = especie.grupo)
-                                    InfoRow(icon = Icons.Default.PriorityHigh, label = "Estado", value = especie.estado)
+                                    HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp), thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant)
+                                    InfoRow(icon = Icons.Default.PriorityHigh, label = "Estado", value = especie.estado, isStatus = true)
+                                    HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp), thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant)
                                     InfoRow(icon = Icons.Default.Egg, label = "Reproducción", value = especie.infoReproduccion)
+                                    HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp), thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant)
                                     InfoRow(icon = Icons.Default.Timer, label = "Longevidad", value = especie.longevidad)
                                 }
                             }
@@ -252,31 +241,53 @@ fun EspecieDetailContent(
 }
 
 @Composable
-fun InfoRow(icon: ImageVector, label: String, value: String) {
+fun InfoRow(icon: ImageVector, label: String, value: String, isStatus: Boolean = false) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 6.dp),
+            .padding(vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = null,
-            modifier = Modifier.size(24.dp),
-            tint = MaterialTheme.colorScheme.primary
-        )
-        Spacer(modifier = Modifier.width(12.dp))
-        Column {
+        Surface(
+            color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f),
+            shape = CircleShape,
+            modifier = Modifier.size(40.dp)
+        ) {
+            Box(contentAlignment = Alignment.Center) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    modifier = Modifier.size(20.dp),
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            }
+        }
+        Spacer(modifier = Modifier.width(16.dp))
+        Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = label,
                 style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.primary
+                color = MaterialTheme.colorScheme.primary,
+                fontWeight = FontWeight.Bold
             )
-            Text(
-                text = value,
-                style = MaterialTheme.typography.bodyLarge,
-                fontWeight = FontWeight.Medium
-            )
+            if (isStatus) {
+                AssistChip(
+                    onClick = { },
+                    label = { Text(value) },
+                    colors = AssistChipDefaults.assistChipColors(
+                        containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                        labelColor = MaterialTheme.colorScheme.onTertiaryContainer
+                    ),
+                    border = null,
+                    modifier = Modifier.height(24.dp)
+                )
+            } else {
+                Text(
+                    text = value,
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.Medium
+                )
+            }
         }
     }
 }

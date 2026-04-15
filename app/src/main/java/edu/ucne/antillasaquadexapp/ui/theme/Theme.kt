@@ -90,8 +90,8 @@ private val darkScheme = darkColorScheme(
 @Composable
 fun AntillasAquaDexAppTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
+    // Deshabilitamos dynamicColor por defecto para que siempre se vea el tema marino personalizado
+    dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {
