@@ -101,11 +101,93 @@ object TriviaProvider {
     private val preguntasMamiferos = listOf(
         PreguntaTrivia(
             id = 101,
-            enunciado = "¿Los delfines son mamíferos?",
-            opciones = listOf("Verdadero", "Falso"),
-            respuestaCorrecta = 1, 
+            enunciado = "¿En qué zona de la República Dominicana es más común observar Ballenas Jorobadas en invierno?",
+            opciones = listOf("Punta Cana", "Puerto Plata", "La Romana", "Bahía de Samaná"),
+            respuestaCorrecta = 4,
             dificultad = Dificultad.FACIL,
-            categoria = "MAMÍFEROS"
+            categoria = "MAMÍFEROS",
+            especieId = 1
+        ),
+        PreguntaTrivia(
+            id = 102,
+            enunciado = "Debido a su dieta de pastos marinos, al Manatí Antillano se le conoce como:",
+            opciones = listOf("Elefante marino", "Perro de agua", "Vaca marina", "Cerdo de mar"),
+            respuestaCorrecta = 3,
+            dificultad = Dificultad.FACIL,
+            categoria = "MAMÍFEROS",
+            especieId = 51
+        ),
+        PreguntaTrivia(
+            id = 103,
+            enunciado = "¿Cómo se comunican principalmente los delfines bajo el agua?",
+            opciones = listOf("A través de luces", "Mediante sonidos y silbidos", "Cambiando de color", "Liberando burbujas"),
+            respuestaCorrecta = 2,
+            dificultad = Dificultad.FACIL,
+            categoria = "MAMÍFEROS",
+            especieId = 21
+        ),
+        PreguntaTrivia(
+            id = 104,
+            enunciado = "¿Qué órgano del Cachalote es proporcionalmente el más grande de todo el reino animal?",
+            opciones = listOf("Cerebro", "Corazón", "Estómago", "Hígado"),
+            respuestaCorrecta = 1,
+            dificultad = Dificultad.FACIL,
+            categoria = "MAMÍFEROS",
+            especieId = 11
+        ),
+        PreguntaTrivia(
+            id = 105,
+            enunciado = "El Delfín Spinner es famoso en las Antillas por realizar saltos de tipo:",
+            opciones = listOf("Hacia atrás", "Planos", "Verticales", "Giratorios"),
+            respuestaCorrecta = 4,
+            dificultad = Dificultad.FACIL,
+            categoria = "MAMÍFEROS",
+            especieId = 61
+        ),
+        PreguntaTrivia(
+            id = 106,
+            enunciado = "El Manatí Antillano es un animal de dieta principalmente:",
+            opciones = listOf("Carnívora", "Omnívora", "Herbívora", "Carroñera"),
+            respuestaCorrecta = 3,
+            dificultad = Dificultad.FACIL,
+            categoria = "MAMÍFEROS",
+            especieId = 51
+        ),
+        PreguntaTrivia(
+            id = 107,
+            enunciado = "¿Los delfines respiran bajo el agua mediante branquias?",
+            opciones = listOf("Verdadero", "Falso"),
+            respuestaCorrecta = 2,
+            dificultad = Dificultad.FACIL,
+            categoria = "MAMÍFEROS",
+            especieId = 21
+        ),
+        PreguntaTrivia(
+            id = 108,
+            enunciado = "¿Qué récord ostenta el Zifio de Cuvier entre los mamíferos marinos?",
+            opciones = listOf("Buceo más profundo", "Mayor velocidad de nado", "Canto más largo", "Mayor esperanza de vida"),
+            respuestaCorrecta = 1,
+            dificultad = Dificultad.DIFICIL,
+            categoria = "MAMÍFEROS",
+            especieId = 111
+        ),
+        PreguntaTrivia(
+            id = 109,
+            enunciado = "El Murciélago Pescador Mayor, que habita en manglares, se alimenta de:",
+            opciones = listOf("Solo frutas", "Solo néctar", "Sangre", "Peces e insectos"),
+            respuestaCorrecta = 4,
+            dificultad = Dificultad.DIFICIL,
+            categoria = "MAMÍFEROS",
+            especieId = 179
+        ),
+        PreguntaTrivia(
+            id = 110,
+            enunciado = "Aunque se parece a una orca, la Falsa Orca es en realidad un miembro de la familia de los:",
+            opciones = listOf("Tiburones", "Delfines", "Ballenas barbadas", "Manatíes"),
+            respuestaCorrecta = 2,
+            dificultad = Dificultad.DIFICIL,
+            categoria = "MAMÍFEROS",
+            especieId = 151
         )
     )
 
