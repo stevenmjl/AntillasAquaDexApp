@@ -42,6 +42,13 @@ La aplicación está construida con las tecnologías más modernas de Android:
 
 ---
 
+## 📷 Imágenes de referencia
+
+<img width="220" height="700" alt="mapa" src="https://github.com/user-attachments/assets/ce37c73c-dff2-4ef0-b3b2-e66e6b0ad452" />
+<img width="220" height="700" alt="favoritos" src="https://github.com/user-attachments/assets/b5eb0367-5802-4051-8969-783226348f49" />
+<img width="220" height="700" alt="trivia" src="https://github.com/user-attachments/assets/93a7e42f-c080-4ebc-82e8-0c44cf078cb4" />
+<img width="220" height="700" alt="perfil" src="https://github.com/user-attachments/assets/3bf2f105-0ed8-4979-9be9-55278df98606" />
+
 ## 🐚 Créditos
 
 Desarrollado con ❤️ para los amantes del mar y la naturaleza. 
